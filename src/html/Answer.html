@@ -1,0 +1,428 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Answer</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-03"><meta name="DC.source" content="Answer.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">clc;
+clf;
+
+<span class="comment">% This assumes that the file "rocket.mat" is present in the same directory.</span>
+
+load <span class="string">rocket.mat</span>;
+deltaT = 0.1;
+m = 100;
+g = 9.81;
+yinit = 0;
+C = [1 0];
+
+A = [1 deltaT; 0 1];
+
+B = [(deltaT^2)/(2*m) -0.5*(deltaT^2) -(deltaT^2)/(2*m);
+    deltaT/m -deltaT -deltaT/m];
+prediction_size = size(ytrue);
+
+<span class="comment">%%---------- Question 1 -----------------</span>
+
+y_predicted = zeros(prediction_size);
+x_current = [y(1); ydottrue(1)];
+<span class="keyword">for</span> i = 1:prediction_size
+    x_next = A*x_current + B*u(i, 1:3)';
+    y_predicted(i) = C*x_current;
+    x_current = x_next;
+<span class="keyword">end</span>
+
+<span class="comment">% Plotting the ytrue values and the predicted y values against the sample</span>
+<span class="comment">% indices</span>
+figure(1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_predicted);
+legend(<span class="string">'y true'</span>, <span class="string">'y predicted'</span>);
+title(<span class="string">'Y (true) and Y (predicted) vs samples'</span>);
+
+<span class="comment">%As we can clearly see the predicted y values are very different from the</span>
+<span class="comment">%ytrue values provided, and the predicted trajectory coincides only for the</span>
+<span class="comment">%first few samples, beyond which it diverges greatly.</span>
+</pre><img vspace="5" hspace="5" src="Answer_01.png" alt=""> <img vspace="5" hspace="5" src="Answer_02.png" alt=""> <pre class="codeinput"><span class="comment">%---------------- Question 2 ------------------</span>
+
+p = [0.8 0.7];
+K = place(A', C',p)';
+
+<span class="comment">% Initializing the predicted value arrays</span>
+y_predicted_asymp = zeros(prediction_size);
+ydot_predicted_asymp = zeros(prediction_size);
+
+x_current_asymp = [ytrue(1); ydottrue(1)];
+
+<span class="keyword">for</span> i = 1:prediction_size
+    <span class="comment">%predicting the next state using the asymptotic observer</span>
+    x_next_asymp = (A - K*C)*x_current_asymp + B*u(i, 1:3)' + K*y(i);
+    y_predicted_asymp(i) = C*x_current_asymp;
+    ydot_predicted_asymp(i) = [0 1]*x_current_asymp;
+    x_current_asymp = x_next_asymp;
+<span class="keyword">end</span>
+
+<span class="comment">%Plotting the values of ytrue and the predicted y values against the sample</span>
+<span class="comment">%indices</span>
+figure(2);
+subplot(2,1,1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_predicted_asymp);
+legend(<span class="string">'y true'</span>, <span class="string">'y predicted'</span>);
+title(<span class="string">'Y (true) and Y (predicted) vs samples'</span>);
+
+<span class="comment">%Plotting the values of ydottrue and the predicted y dot values against the sample</span>
+<span class="comment">%indices</span>
+subplot(2,1,2);
+plot(1:prediction_size, ydottrue, 1:prediction_size, ydot_predicted_asymp);
+legend(<span class="string">'ydot true'</span>, <span class="string">'ydot predicted'</span>);
+title(<span class="string">'Ydot (true) and Ydot (predicted) vs samples'</span>);
+
+<span class="comment">% Compared to the previous simulation, we can see that the accuracy of the</span>
+<span class="comment">% simulation has increased greatly due to the asymptotic observer feedback.</span>
+</pre><img vspace="5" hspace="5" src="Answer_03.png" alt=""> <p>------------ Question 3 -------------</p><pre class="codeinput">S = 0; <span class="comment">%given</span>
+Q = 100*eye(2); <span class="comment">% R &gt; 2Q for the maximal root to be &lt; R</span>
+R = 1000; <span class="comment">%given</span>
+
+<span class="comment">% Since S = 0 and Q &gt; 0</span>
+P = 0.5 * (Q + (Q^2 + 4*Q*R)^0.5);
+K = (A*P*C')/(C*P*C' + R);
+
+<span class="comment">%Initializing the predicted value arrays</span>
+y_predicted_kalman = zeros(prediction_size);
+ydot_predicted_kalman = zeros(prediction_size);
+
+x_current_kalman = [ytrue(1); ydottrue(1)];
+
+<span class="keyword">for</span> i = 1:prediction_size
+    <span class="comment">% Taking the Kalman gain matrix to be stationary</span>
+    x_next_kalman = (A - K*C)*x_current_kalman + B*u(i, 1:3)' + K*y(i);
+    y_predicted_kalman(i) = C*x_current_kalman;
+    ydot_predicted_kalman(i) = [0 1]*x_current_kalman;
+    x_current_kalman = x_next_kalman;
+<span class="keyword">end</span>
+
+<span class="comment">%Plotting the values of ytrue and the predicted y values against the sample</span>
+<span class="comment">%indices</span>
+figure(4);
+subplot(3,1,1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_predicted_kalman);
+legend(<span class="string">'y true'</span>, <span class="string">'y predicted'</span>);
+title(<span class="string">'Y (true) and Y (predicted) vs samples'</span>);
+
+<span class="comment">%Plotting the values of ydottrue and the predicted y dot values against the sample</span>
+<span class="comment">%indices</span>
+subplot(3,1,2);
+plot(1:prediction_size, ydottrue, 1:prediction_size, ydot_predicted_kalman);
+legend(<span class="string">'ydot true'</span>, <span class="string">'ydot predicted'</span>);
+title(<span class="string">'Ydot (true) and Ydot (predicted) vs samples'</span>);
+
+<span class="comment">%Plotting the error values of (ytrue - ypredicted) against the sample</span>
+<span class="comment">%indices</span>
+subplot(3,1,3);
+plot(1:prediction_size, ytrue - y_predicted_kalman);
+legend(<span class="string">'y true - y predicted'</span>);
+title(<span class="string">'Y(true) - Y (predicted) vs samples'</span>);
+
+<span class="comment">%We conclude that the values of the error vary more as the value of Q is</span>
+<span class="comment">%increased, but the absolute error decreases. So an appropriate Q value has</span>
+<span class="comment">%to be chosen.</span>
+</pre><img vspace="5" hspace="5" src="Answer_04.png" alt=""> <p>------------ Question 4 ---------------</p><pre class="codeinput"><span class="comment">% In the previous question, since the Q matrix corresponds only to the</span>
+<span class="comment">% position values' covariance, we are able to predict the y values</span>
+<span class="comment">% reasonably, whereas the velocity values are not accurate.</span>
+<span class="comment">% A way to predict the rocket's vertical velocity would be through the</span>
+<span class="comment">% proper construction of a non-stationary Kalman filter. (In the case above,</span>
+<span class="comment">% we assumed a "stationary" state in which x was not changing greatly, which</span>
+<span class="comment">% isn't the case as the velocity of the rocket changes as well.) We can</span>
+<span class="comment">% conclude that the velocity values can be calculated since the system is</span>
+<span class="comment">% observable.</span>
+</pre><p>------------- Question 5 ----------------</p><pre class="codeinput"><span class="comment">% x is now [y ydot d] and A is modified to be a 3x3 matrix.</span>
+<span class="comment">% w(k) has w3(k) included with it, and x(k+1) has d(k+1) included.</span>
+
+A_new = [1 deltaT -(deltaT^2)/(2*m);
+          0 1 -deltaT/m;
+          0 0 1];
+
+B_new = [B(:,1:2);0 0];
+
+C_new = [1 0 0];
+
+S = 0;
+Qu = 10;
+Q = 100*eye(3);
+Q(3,3) = Qu;
+R = 1000;
+P_new = 0.5 * (Q + (Q^2 + 4*Q*R)^0.5);
+K_new = (A_new*P_new*C_new')/(C_new*P_new*C_new' + R);
+
+y_new_predicted_kalman = zeros(prediction_size);
+ydot_new_predicted_kalman = zeros(prediction_size);
+
+xd_current = [ytrue(1); ydottrue(1); dtrue(1)];
+
+<span class="keyword">for</span> i = 1:prediction_size
+    xd_next = (A_new - K_new*C_new)*xd_current + B_new*u(i, 1:2)' + K_new*y(i);
+    y_new_predicted_kalman(i) = C_new*xd_current;
+    ydot_new_predicted_kalman(i) = [0 1 0]*xd_current;
+    xd_current = xd_next;
+<span class="keyword">end</span>
+
+<span class="comment">%plotting the predicted y and y dot values against the sample indices</span>
+figure(5);
+plt1 = subplot(3,1,1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_new_predicted_kalman);
+legend(<span class="string">'y true'</span>, <span class="string">'y predicted'</span>);
+title(<span class="string">'Y (true) and Y (predicted) vs samples'</span>);
+
+plt2 = subplot(3,1,2);
+plot(plt2, 1:prediction_size, ydottrue, 1:prediction_size, ydot_new_predicted_kalman);
+legend(<span class="string">'ydot true'</span>, <span class="string">'ydot predicted'</span>);
+title(<span class="string">'Ydot (true) and Ydot (predicted) vs samples'</span>);
+</pre><img vspace="5" hspace="5" src="Answer_05.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clc;
+clf;
+
+% This assumes that the file "rocket.mat" is present in the same directory.
+
+load rocket.mat;
+deltaT = 0.1;
+m = 100;
+g = 9.81;
+yinit = 0;
+C = [1 0];
+
+A = [1 deltaT; 0 1];
+
+B = [(deltaT^2)/(2*m) -0.5*(deltaT^2) -(deltaT^2)/(2*m);
+    deltaT/m -deltaT -deltaT/m];
+prediction_size = size(ytrue);
+
+%%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Question 1 REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+y_predicted = zeros(prediction_size);
+x_current = [y(1); ydottrue(1)];
+for i = 1:prediction_size
+    x_next = A*x_current + B*u(i, 1:3)'; 
+    y_predicted(i) = C*x_current;
+    x_current = x_next;
+end
+
+% Plotting the ytrue values and the predicted y values against the sample
+% indices
+figure(1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_predicted);
+legend('y true', 'y predicted');
+title('Y (true) and Y (predicted) vs samples');
+
+%As we can clearly see the predicted y values are very different from the
+%ytrue values provided, and the predicted trajectory coincides only for the
+%first few samples, beyond which it diverges greatly.
+
+%%
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Question 2 REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+p = [0.8 0.7];
+K = place(A', C',p)';
+
+% Initializing the predicted value arrays
+y_predicted_asymp = zeros(prediction_size);
+ydot_predicted_asymp = zeros(prediction_size);
+
+x_current_asymp = [ytrue(1); ydottrue(1)];
+
+for i = 1:prediction_size
+    %predicting the next state using the asymptotic observer
+    x_next_asymp = (A - K*C)*x_current_asymp + B*u(i, 1:3)' + K*y(i);
+    y_predicted_asymp(i) = C*x_current_asymp;
+    ydot_predicted_asymp(i) = [0 1]*x_current_asymp;
+    x_current_asymp = x_next_asymp;
+end
+
+%Plotting the values of ytrue and the predicted y values against the sample
+%indices
+figure(2);
+subplot(2,1,1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_predicted_asymp);
+legend('y true', 'y predicted');
+title('Y (true) and Y (predicted) vs samples');
+
+%Plotting the values of ydottrue and the predicted y dot values against the sample
+%indices
+subplot(2,1,2);
+plot(1:prediction_size, ydottrue, 1:prediction_size, ydot_predicted_asymp);
+legend('ydot true', 'ydot predicted');
+title('Ydot (true) and Ydot (predicted) vs samples');
+
+% Compared to the previous simulation, we can see that the accuracy of the
+% simulation has increased greatly due to the asymptotic observer feedback.
+%%
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Question 3 REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+S = 0; %given
+Q = 100*eye(2); % R > 2Q for the maximal root to be < R
+R = 1000; %given
+
+% Since S = 0 and Q > 0
+P = 0.5 * (Q + (Q^2 + 4*Q*R)^0.5);
+K = (A*P*C')/(C*P*C' + R);
+
+%Initializing the predicted value arrays
+y_predicted_kalman = zeros(prediction_size);
+ydot_predicted_kalman = zeros(prediction_size);
+
+x_current_kalman = [ytrue(1); ydottrue(1)];
+
+for i = 1:prediction_size
+    % Taking the Kalman gain matrix to be stationary
+    x_next_kalman = (A - K*C)*x_current_kalman + B*u(i, 1:3)' + K*y(i);
+    y_predicted_kalman(i) = C*x_current_kalman;
+    ydot_predicted_kalman(i) = [0 1]*x_current_kalman;
+    x_current_kalman = x_next_kalman;
+end
+
+%Plotting the values of ytrue and the predicted y values against the sample
+%indices
+figure(4);
+subplot(3,1,1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_predicted_kalman);
+legend('y true', 'y predicted');
+title('Y (true) and Y (predicted) vs samples');
+
+%Plotting the values of ydottrue and the predicted y dot values against the sample
+%indices
+subplot(3,1,2);
+plot(1:prediction_size, ydottrue, 1:prediction_size, ydot_predicted_kalman);
+legend('ydot true', 'ydot predicted');
+title('Ydot (true) and Ydot (predicted) vs samples');
+
+%Plotting the error values of (ytrue - ypredicted) against the sample
+%indices
+subplot(3,1,3);
+plot(1:prediction_size, ytrue - y_predicted_kalman);
+legend('y true - y predicted');
+title('Y(true) - Y (predicted) vs samples');
+
+%We conclude that the values of the error vary more as the value of Q is
+%increased, but the absolute error decreases. So an appropriate Q value has
+%to be chosen.
+%%
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH Question 4 REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% In the previous question, since the Q matrix corresponds only to the
+% position values' covariance, we are able to predict the y values
+% reasonably, whereas the velocity values are not accurate. 
+% A way to predict the rocket's vertical velocity would be through the
+% proper construction of a non-stationary Kalman filter. (In the case above,
+% we assumed a "stationary" state in which x was not changing greatly, which
+% isn't the case as the velocity of the rocket changes as well.) We can
+% conclude that the velocity values can be calculated since the system is
+% observable.
+
+%%
+% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- Question 5 REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+% x is now [y ydot d] and A is modified to be a 3x3 matrix.
+% w(k) has w3(k) included with it, and x(k+1) has d(k+1) included.
+
+A_new = [1 deltaT -(deltaT^2)/(2*m);
+          0 1 -deltaT/m;
+          0 0 1];
+
+B_new = [B(:,1:2);0 0];
+
+C_new = [1 0 0];
+
+S = 0;
+Qu = 10;
+Q = 100*eye(3);
+Q(3,3) = Qu;
+R = 1000;
+P_new = 0.5 * (Q + (Q^2 + 4*Q*R)^0.5);
+K_new = (A_new*P_new*C_new')/(C_new*P_new*C_new' + R);
+
+y_new_predicted_kalman = zeros(prediction_size);
+ydot_new_predicted_kalman = zeros(prediction_size);
+
+xd_current = [ytrue(1); ydottrue(1); dtrue(1)];      
+
+for i = 1:prediction_size
+    xd_next = (A_new - K_new*C_new)*xd_current + B_new*u(i, 1:2)' + K_new*y(i);
+    y_new_predicted_kalman(i) = C_new*xd_current;
+    ydot_new_predicted_kalman(i) = [0 1 0]*xd_current;
+    xd_current = xd_next;
+end
+
+%plotting the predicted y and y dot values against the sample indices
+figure(5);
+plt1 = subplot(3,1,1);
+plot(1:prediction_size, ytrue, 1:prediction_size, y_new_predicted_kalman);
+legend('y true', 'y predicted');
+title('Y (true) and Y (predicted) vs samples');
+
+plt2 = subplot(3,1,2);
+plot(plt2, 1:prediction_size, ydottrue, 1:prediction_size, ydot_new_predicted_kalman);
+legend('ydot true', 'ydot predicted');
+title('Ydot (true) and Ydot (predicted) vs samples');
+##### SOURCE END #####
+--></body></html>
