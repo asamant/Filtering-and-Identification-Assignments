@@ -84,7 +84,7 @@ This assignment deals with modeling an \textit{Adaptive Optics} (AO) system in w
 
 Each model has some questions associated with it, and in this assigment, we solve them in chronological sequence taking one model at a time.
 
-\section*{Random Walk Model}
+\section*{1. Random Walk Model}
 
 \subsection*{Question 1}
 
@@ -96,7 +96,7 @@ We know from the assignment's equation (2) that:
 
 We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
 
-\textbf{DO TEH GODDAMN THING HERE JUST TAKE THE NON-FULL-RANK APPROACH CUZ G AIN'T FULL RANK}
+\textbf{DO TEH GODDAMN THING HERE JUST TAKE THE NON-FULL-RANK APPROACH CUZ G AIN'T FULL RANK. Will have to use Svd on G and provide best estimate.}
 
 \begin{equation*}
 content...
@@ -117,16 +117,26 @@ Based on equation (8) from the assignment, we approximate the value of $C_{\phi}
 C_{\phi}(0) = \frac{1}{N}\sum_{i=1}^{N}\phi(i)\phi(i)^T
 \end{equation*}
 
-\textbf{WE HAVE THE REQUIRED DATA NOW WE JUST NEED TO COMPUTE THE EXPRESSIONS}
+\textbf{WE HAVE THE REQUIRED DATA NOW WE JUST NEED TO COMPUTE THE EXPRESSIONS. Pg 113 in book}
 
 \paragraph*{}
 \textit{For questions 3 to 5, we assume E[$\epsilon$(k)] = 0 and E[$\epsilon(k)\epsilon(k)^T$] = $C_{\phi}(0)$}
 
 \subsection*{Question 3}
 
+Similar to previous question but with now closed loop expression for s(k).
 
+\subsection*{Question 4}
 
-%-------------------------------------------------------------------------------
+Use an expression similar to Kalman Gain to get ideal predictor.
+
+\subsection*{Question 5}
+
+Find Optimal Increment.
+
+\section*{1. VAR Model}
+
+%----------------------------------------------- --------------------------------
 % REFERENCES
 %-------------------------------------------------------------------------------
 \newpage
