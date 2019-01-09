@@ -82,7 +82,7 @@ This assignment deals with modeling an \textit{Adaptive Optics} (AO) system in w
 	\item a stochastic state-space model
 \end{itemize}
 
-Each model has some questions associated with it, and in this assigment, we solve them in chronological sequence taking one model at a time.
+Each model has some questions associated with it, and we solve them in chronological sequence taking one model at a time.
 
 \section*{1. Random Walk Model}
 
@@ -96,7 +96,9 @@ We know from the assignment's equation (2) that:
 
 We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
 
-\textbf{DO TEH GODDAMN THING HERE JUST TAKE THE NON-FULL-RANK APPROACH CUZ G AIN'T FULL RANK. Will have to use Svd on G and provide best estimate.}
+First, we determine whether the matrix G has full rank or not. We load the \textit{systemMatrices.mat} file which contains the matrix G, and then run the \textit{rank} command in MATLAB to get a rank value of \textbf{47}, which is less than \textit{min(number of rows, number of columns)} of G. Thus, we need to employ a linear least squares method that doesn't assume the matrix G to be full rank.
+
+We know that there are multiple solutions to this problem, and we go with one such that the optimal solution, $\^\phi(k)$, has a minimal 2-norm. 
 
 \begin{equation*}
 content...
@@ -134,7 +136,55 @@ Use an expression similar to Kalman Gain to get ideal predictor.
 
 Find Optimal Increment.
 
-\section*{1. VAR Model}
+\section*{2. VAR Model}
+
+\subsection*{Question 1}
+
+We know from the assignment's equation (2) that:
+
+\begin{equation*}
+	s_{o}(k) = G\phi(k) + e(k)
+\end{equation*}
+
+We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
+
+
+
+\begin{equation*}
+	content...
+\end{equation*}
+
+\subsection*{Question 2}
+
+We are provided with some prior information about the wavefront, viz.:
+
+\begin{itemize}
+	\item E[$\phi$(k)] = 0
+	\item E[$\phi(k)\phi(k)^T$] = $C_{\phi}(0)$
+	\item noise variance = $\sigma_{e}^{2}$
+\end{itemize}
+
+Based on equation (8) from the assignment, we approximate the value of $C_{\phi}(0)$ as:
+\begin{equation*}
+	C_{\phi}(0) = \frac{1}{N}\sum_{i=1}^{N}\phi(i)\phi(i)^T
+\end{equation*}
+
+\textbf{WE HAVE THE REQUIRED DATA NOW WE JUST NEED TO COMPUTE THE EXPRESSIONS. Pg 113 in book}
+
+\paragraph*{}
+\textit{For questions 3 to 5, we assume E[$\epsilon$(k)] = 0 and E[$\epsilon(k)\epsilon(k)^T$] = $C_{\phi}(0)$}
+
+\subsection*{Question 3}
+
+Similar to previous question but with now closed loop expression for s(k).
+
+\subsection*{Question 4}
+
+Use an expression similar to Kalman Gain to get ideal predictor.
+
+\subsection*{Question 5}
+
+Find Optimal Increment.
 
 %----------------------------------------------- --------------------------------
 % REFERENCES

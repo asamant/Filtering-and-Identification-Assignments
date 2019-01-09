@@ -19,4 +19,5 @@ rank_G = rank(G);
 % We get the rank of G as 47, whereas the number of columns in G is 49 and
 % the number of rows is 72. Hence, G is clearly not full rank.
 
-
+% Getting the SVD of G:
+[U, S, V] = svd(G, 0);
