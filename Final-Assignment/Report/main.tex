@@ -94,14 +94,69 @@ We know from the assignment's equation (2) that:
 	s_{o}(k) = G\phi(k) + e(k)
 \end{equation*}
 
-We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
+We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\hat\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
 
-First, we determine whether the matrix G has full rank or not. We load the \textit{systemMatrices.mat} file which contains the matrix G, and then run the \textit{rank} command in MATLAB to get a rank value of \textbf{47}, which is less than \textit{min(number of rows, number of columns)} of G. Thus, we need to employ a linear least squares method that doesn't assume the matrix G to be full rank.
+First, we determine whether the matrix G is full-rank or not. We load the \textit{systemMatrices.mat} file which contains the matrix G, and then run the \textit{rank} command in MATLAB to get a rank value of \textbf{47}, which is less than \textit{min(number of rows, number of columns)} of G. Thus, we need to employ a linear least-squares method that doesn't assume the matrix G to be full-rank.
 
-We know that there are multiple solutions to this problem, and we go with one such that the optimal solution, $\^\phi(k)$, has a minimal 2-norm. 
+We know that there are multiple solutions to this problem, and for uniqueness we go with one such that the optimal solution, $\hat\phi(k)$, has a minimal 2-norm, thus leading to the original linear least-squares problem being reformulated as:
+
+$\underset{\phi(k) \in \Gamma}{min} \, \|\phi(k)\|_{2}^{2}$ \space	with \space	$\Gamma = \left\{ \phi(k) : \phi(k) = arg \, \underset{z}{min} \| Gz - s_{o}(k)\|_{2}^{2}\right\}$
+\\
+By performing an SVD operation on the matrix G, we obtain:
 
 \begin{equation*}
-content...
+G = \begin{bmatrix}
+U_{1} & U_{2}
+\end{bmatrix}\begin{bmatrix}
+\Sigma & 0 \\
+0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+V_{1}^{T} \\
+V_{2}^{T}
+\end{bmatrix}
+= U_{1}\Sigma V_{1}^{T}
+\end{equation*}
+
+Here, $\Sigma \in \Re^{47x47}$ is non-singular, by the definition of SVD. 
+
+Now, let us define a partitioned vector,
+
+\begin{equation*}
+\begin{bmatrix}
+\xi_{1} \\
+\xi_{2}
+\end{bmatrix}
+=
+\begin{bmatrix}
+V_{1}^{T} \\
+V_{2}^{T}
+\end{bmatrix}z
+\end{equation*}
+
+Thus, our problem becomes:
+
+$\underset{\xi_{1}}{min} \| U_{1}\Sigma\xi_{1}z - s_{o}(k)\|_{2}^{2}$
+
+We get $\hat\xi_{1} = \Sigma^{-1}U_{1}^{T}s_{o}(k)$, since $\Sigma$ is a non-singular matrix. $\xi_{2}$ has no effect on the above expression and can be chosen arbitrarily. Thus, we get the optimal solution,
+\begin{equation*}
+\hat{z} = \begin{bmatrix}
+V_{1} & V_{2}
+\end{bmatrix}
+\begin{bmatrix}
+\hat\xi_{1} \\
+\hat\xi_{2}
+\end{bmatrix}
+= V_{1}\Sigma^{-1}U_{1}^{T}s_{o}(k) + V_{2}\hat\xi_{2}
+\end{equation*}
+
+Since we're choosing a vector $\phi(k)$ with the smallest 2-norm, and $V_{1}^{T}V_{2} = 0$ we get:
+
+$\|\phi(k)\|_{2}^{2} = \| V_{1}\Sigma^{-1}U_{1}^{T}s_{o}(k)\|_{2}^{2} + \| V_{2}\hat\xi_{2} \|_{2}^{2}$
+
+As we're minimizing the norm, we take $\hat\xi_{2} = 0$ and we finally get the value of $\hat\phi(k)$ to be:
+\begin{equation*}
+\mathbf{\hat\phi(k) = V_{1}\Sigma^{-1}U_{1}^{T}s_{o}(k)}
 \end{equation*}
 
 \subsection*{Question 2}
@@ -115,22 +170,113 @@ We are provided with some prior information about the wavefront, viz.:
 \end{itemize}
   
 Based on equation (8) from the assignment, we approximate the value of $C_{\phi}(0)$ as:
-\begin{equation*}
+\begin{equation}\label{eq:cPhi}
 C_{\phi}(0) = \frac{1}{N}\sum_{i=1}^{N}\phi(i)\phi(i)^T
+\end{equation}
+
+We have the data necessary to formulate our problem of determining $\phi(k)$ as a stochastic linear least-squares problem, and hence we define our linear estimator $\tilde{\phi}(k)$ accordingly:
+
+\begin{equation*}
+	\tilde{\phi}(k) = \begin{bmatrix}
+	M & N
+	\end{bmatrix}
+	\begin{bmatrix}
+	s_{o}(k) \\
+	E[\phi(k)]
+	\end{bmatrix}
+\end{equation*}  
+
+such that E$\left[(\tilde{\phi}(k)- \phi(k))(\tilde{\phi}(k)- \phi(k))^T\right]$ is minimized and E[$\tilde{\phi}(k)$] = E[$\phi(k)$] = 0
+\\\\
+Thus, from the assignment's equation (2), based on $s_{o}(k)$'s expression, we can say,
+
+\begin{equation*}
+	\tilde{\phi}(k) = MG\phi(k) + Me(k) + NE\left[\phi(k)\right]
 \end{equation*}
 
-\textbf{WE HAVE THE REQUIRED DATA NOW WE JUST NEED TO COMPUTE THE EXPRESSIONS. Pg 113 in book}
+Since E[$\tilde{\phi}(k)$] = E[$\phi(k)$] = 0, we have:
+
+\begin{equation*}
+\tilde{\phi}(k) = MG\phi(k) + Me(k)
+\end{equation*}
+
+Furthermore,
+
+\begin{equation*}
+\phi(k) - \tilde{\phi}(k) = (I - MG)\phi(k) - Me(k)
+\end{equation*}
+
+Thus, the covariance of the above expression is computed as:
+
+\begin{equation*}
+E\left[\left(\phi(k) - \tilde{\phi}(k)\right)\left(\phi(k) - \tilde{\phi}(k)\right)^{T}\right] = E\left[\left((I - MG)\phi(k) - Me(k)\right)\left((I - MG)\phi(k) - Me(k)\right)^{T}\right]
+\end{equation*}
+
+On expanding the right side of the equation and taking the error e(k) to be uncorrelated with the wavefront vector $\phi(k)$, and based on the statistical data provided to us, we get the following expression:
+
+\begin{equation*}
+E\left[\left(\phi(k) - \tilde{\phi}(k)\right)\left(\phi(k) - \tilde{\phi}(k)\right)^{T}\right] = (I - MG)C_{\phi}(0)(I - MG)^{T} + M\sigma_{e}^{2}IM^{T}
+\end{equation*}
+
+On further factorization, using the Schur complement of the factorized version, and the application of the "completion of squares" argument to the resulting equation, we get the optimum value of the matrix M that minimizes the covariance expression as:
+
+\begin{equation*}
+	M = C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma^{2}I)^{-1}
+\end{equation*}
+
+(A point to note here: the term in brackets is invertible since $C_{\phi}(0)$ is a positive definite matrix and $\sigma^{2}I$ is non-singular)
+
+Accordingly, we also get the optimum estimate of the wavefront vector,
+
+\begin{equation*}
+\hat\phi(k|k) = C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s_{o}(k)
+\end{equation*}
 
 \paragraph*{}
 \textit{For questions 3 to 5, we assume E[$\epsilon$(k)] = 0 and E[$\epsilon(k)\epsilon(k)^T$] = $C_{\phi}(0)$}
 
 \subsection*{Question 3}
 
-Similar to previous question but with now closed loop expression for s(k).
+Now, we consider the closed-loop system, and proceed to derive a UMVE of $\epsilon(k)$ using the given measurement set s(k).
+As in the previous question, we are provided with some prior information about the wavefront, viz.:
+
+\begin{itemize}
+	\item E[$\epsilon(k)$] = 0
+	\item E$\left[\epsilon(k)\epsilon(k)^T\right]$ = $C_{\phi}(0)$
+	\item noise variance = $\sigma_{e}^{2}$
+\end{itemize}
+
+We can clearly see that the equations (2) and (5) in the given assignment are similar, and we are told that the statistical data (the wavefront's and noise's mean and covariance values) are the same. Hence, as in the previous question, the optimum estimate of the wavefront vector is quite similar in the closed-loop system, and the only difference is in the value of the output vector, which in this case will be the closed-loop slope vector s(k):
+
+\begin{equation*}
+\hat\epsilon(k|k) = C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
+\end{equation*}
 
 \subsection*{Question 4}
 
-Use an expression similar to Kalman Gain to get ideal predictor.
+In this question, we make use of the random walk model represented by equation (9) in the assignment.
+
+We know that:
+
+\begin{equation*}
+\begin{aligned}
+&\epsilon(k) = \phi(k) - Hu(k-1) \\
+&\implies \phi(k) = \epsilon(k) + Hu(k-1) \\
+&\implies \phi(k+1) = \epsilon(k+1) + Hu(k)
+\end{aligned}
+\end{equation*}
+
+From the random walk model, we can relate $\phi(k)$ and $\phi(k+1)$, and substituting the above expressions respectively yields:
+
+\begin{equation*}
+\epsilon(k+1) + Hu(k) = \epsilon(k) + Hu(k-1) + \eta(k)
+\end{equation*}
+
+If we consider $\hat\epsilon(k|k)$ to be the current optimal estimate, we know that the optimal one-step ahead prediction should not be stochastic in nature, and must be estimated based on the current optimal estimate. Based on the above equation, we can thus say,
+
+\begin{equation*}
+\hat\epsilon(k+1|k) = \hat\epsilon(k|k) + Hu(k-1) - Hu(k)
+\end{equation*}
 
 \subsection*{Question 5}
 
@@ -147,7 +293,6 @@ We know from the assignment's equation (2) that:
 \end{equation*}
 
 We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
-
 
 
 \begin{equation*}
