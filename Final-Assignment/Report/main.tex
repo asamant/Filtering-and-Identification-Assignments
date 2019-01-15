@@ -274,54 +274,169 @@ From the random walk model, we can relate $\phi(k)$ and $\phi(k+1)$, and substit
 
 If we consider $\hat\epsilon(k|k)$ to be the current optimal estimate, we know that the optimal one-step ahead prediction should not be stochastic in nature, and must be estimated based on the current optimal estimate. Based on the above equation, we can thus say,
 
-\begin{equation*}
+\begin{equation}\label{eq:ques4}
 \hat\epsilon(k+1|k) = \hat\epsilon(k|k) + Hu(k-1) - Hu(k)
-\end{equation*}
+\end{equation}
 
 \subsection*{Question 5}
 
-Find Optimal Increment.
+We denote $\delta u(k) := u(k) - u(k-1)$. We know from the previous question's equation ~\ref{eq:ques4} that:
+
+\begin{equation*}
+\hat\epsilon(k+1|k) = \hat\epsilon(k|k) - H\delta u(k)
+\end{equation*}
+
+Thus, the minimization problem as described in the assignment's equation (6) can be reformulated as:
+
+\begin{equation*}
+	\underset{\delta u(k)}{min} \, \|\hat\epsilon(k|k) - H\delta u(k)\|_{2}^{2}
+\end{equation*}
+
+This is clearly a linear least-squares problem, and we know from running the \textit{rank} command on the matrix H that it is full-rank. Hence, we can say that the optimal increment, $\hat\delta u(k)$ for minimizing the 2-norm is:
+
+\begin{equation*}
+\hat\delta u(k) = (H^{T}H)^{-1}H^{T}\hat\epsilon(k|k)
+\end{equation*}
+
+We computed the expression for $\hat\epsilon(k|k)$ in question 3, and substituting the expression in the above equation yields the value of $\hat\delta u(k)$ as:
+
+\begin{equation*}
+\hat\delta u(k) = (H^{T}H)^{-1}H^{T}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
+\end{equation*}
+
+Moreover, since H is invertible, we can further simplify the expression as:
+
+\begin{equation*}
+\hat\delta u(k) = H^{-1}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
+\end{equation*}
+
+\subsection*{Question 6}
+
+
 
 \section*{2. VAR Model}
 
+We are provided with a VAR model represented by:
+
+\begin{equation}\label{eq:var_eqn}
+	\phi(k+1) = A\phi(k) + w(k)
+\end{equation}
+
+We have the following information provided to us to demonstrate that w(k) is uncorrelated with the measurement noise and the wavefront:
+\begin{itemize}
+\item $E\left[w(k)e(k)^{T}\right] = 0$
+\item $E\left[w(k)\phi(k)^{T}\right] = 0$
+\end{itemize}
+
+We are also provided with statistical information about w(k): w(k) $\sim \mathcal{N}(0, C_{w})$
+
 \subsection*{Question 1}
 
-We know from the assignment's equation (2) that:
+We have the following data:
+
+\begin{itemize}
+	\item $C_{\phi}(0) = E\left[\phi(k)\phi(k)^{T}\right]$
+	\item $C_{\phi}(1) = E\left[\phi(k+1)\phi(k)^{T}\right]$
+\end{itemize}
+
+Multiplying equation \ref{eq:var_eqn} with $\phi(k)^{T}$ on both sides yields:
 
 \begin{equation*}
-	s_{o}(k) = G\phi(k) + e(k)
+\phi(k+1)\phi(k)^{T} = A\phi(k)\phi(k)^{T} + w(k)\phi(k)^{T}
 \end{equation*}
 
-We have the values of the wavefront sensor data in open-loop, $s_{o}(k)$, and also the value of the matrix \textit{G}. To compute the value of $\phi(k)$, given no prior information on it, we follow the linear least-squares approach:
-
+Further, on taking the expectation:
 
 \begin{equation*}
-	content...
+E\left[\phi(k+1)\phi(k)^{T}\right] = E\left[A\phi(k)\phi(k)^{T}\right] + E\left[w(k)\phi(k)^{T}\right]
 \end{equation*}
+
+Thus, we get the relation:
+
+\begin{equation*}
+	C_{\phi}(1) = AC_{\phi}(0)
+\end{equation*}
+
+and hence we calculate:
+\begin{equation*}
+	A = C_{\phi}(1)/C_{\phi}(0)
+\end{equation*}
+
 
 \subsection*{Question 2}
 
-We are provided with some prior information about the wavefront, viz.:
+We make an assumption here that $\phi(k)$ is a WSS signal.
 
-\begin{itemize}
-	\item E[$\phi$(k)] = 0
-	\item E[$\phi(k)\phi(k)^T$] = $C_{\phi}(0)$
-	\item noise variance = $\sigma_{e}^{2}$
-\end{itemize}
+Multiplying equation \ref{eq:var_eqn} with $w(k)^{T}$ on both sides, and then taking the resulting expectation yields:
 
-Based on equation (8) from the assignment, we approximate the value of $C_{\phi}(0)$ as:
 \begin{equation*}
-	C_{\phi}(0) = \frac{1}{N}\sum_{i=1}^{N}\phi(i)\phi(i)^T
+E\left[\phi(k+1)w(k)^{T}\right] = E\left[A\phi(k)w(k)^{T}\right] + E\left[w(k)w(k)^{T}\right]
+\end{equation*} 
+
+Based on the data we have, we get the following relation based on the above equation:
+
+\begin{equation*}
+	E\left[\phi(k+1)w(k)^{T}\right] = C_{w}
 \end{equation*}
 
-\textbf{WE HAVE THE REQUIRED DATA NOW WE JUST NEED TO COMPUTE THE EXPRESSIONS. Pg 113 in book}
+Taking the transpose of equation \ref{eq:var_eqn}, and multiplying with $\phi(k+1)$ on both sides, we get: 
 
-\paragraph*{}
-\textit{For questions 3 to 5, we assume E[$\epsilon$(k)] = 0 and E[$\epsilon(k)\epsilon(k)^T$] = $C_{\phi}(0)$}
+\begin{equation*}
+E\left[\phi(k+1)\phi(k+1)^{T}\right] = E\left[A\phi(k+1)\phi(k)^{T}\right] + E\left[\phi(k+1)w(k)^{T}\right]
+\end{equation*} 
+
+Since we have assumed $\phi(k)$ to be WSS, we can say that:\newline
+$E\left[\phi(k+1)\phi(k+1)^{T}\right] = E\left[\phi(k)\phi(k)^{T}\right] = C_{\phi}(0)$ 
+
+And we know from the previous question that $C_{\phi}(1) = AC_{\phi}(0)$\newline
+Thus,
+
+\begin{equation*}
+\begin{aligned}
+C_{\phi}(0) = AC_{\phi}(1) + C_{w}\\
+\implies C_{\phi}(0) = A^2C_{\phi}(0) + C_{w}
+\end{aligned}
+\end{equation*}
+
+So we derive the following relationship:
+
+\begin{equation*}
+C_{w} = (I-A^2)C_{\phi}(0)
+\end{equation*} 
 
 \subsection*{Question 3}
 
-Similar to previous question but with now closed loop expression for s(k).
+We need to formulate a state-space model with $\epsilon(k)$ being the state vector and s(k) being the output.
+
+Based on equation (4) from the assignment, we can write:
+
+\begin{equation*}
+\begin{aligned}
+\phi(k) = \epsilon(k) + Hu(k-1)\\
+\implies \phi(k+1) = \epsilon(k+1) + Hu(k)
+\end{aligned}
+\end{equation*} 
+
+Substituting this expression for $\phi(k)$ in equation (10), we get:
+
+\begin{equation*}
+\begin{aligned}
+\epsilon(k+1) + Hu(k) = A\epsilon(k) + AHu(k-1) + w(k)\\
+\implies \epsilon(k+1) = \epsilon(k) + AHu(k-1) - Hu(k) + w(k)
+\end{aligned}
+\end{equation*} 
+
+Combining the above relation with equation (5) from the assignment, we have the following state-space model as required:
+
+\begin{equation*}
+\begin{aligned}
+\epsilon(k+1) &= \epsilon(k) + \Gamma(k) + w(k)\\
+s(k) &= G\epsilon(k) + e(k)\\
+&where\\
+\Gamma(k) &= AHu(k-1) - Hu(k)
+\end{aligned}
+\end{equation*} 
+
 
 \subsection*{Question 4}
 

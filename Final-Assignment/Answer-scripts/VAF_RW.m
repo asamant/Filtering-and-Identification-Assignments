@@ -1,4 +1,4 @@
-function [var_eps] = AOloopRW(G,H, covariance_phi, sigma_e, phi_sim)
+function [VAF] = VAF_RW(G,H, covariance_phi, sigma_e, phi_sim)
 % Variance calculation of an AO system in the closed-loop configuration
 % IN
 % G     : measurement matrix 
@@ -31,9 +31,6 @@ eps_k = zeros(size(phi_sim,1),T);
 % epsilon matrix with mean removed:
 eps_mean_removed_k = zeros(size(phi_sim,1),T);
 
-% Constructing a vector of all the variance values for eps
-var_eps = zeros(T,1);
-
 % An assumption is that H is full rank.
 
 % We have the data for phi_k, and we know the matrix H.
@@ -52,16 +49,25 @@ eps_k(:,1) = phi_sim(:,1);
 
 eps_mean_removed_k(:,1) = eps_k(:,1) - mean(eps_k(:,1));
 
-var_eps(1) = var(eps_mean_removed_k(:,1));
+% Calculation of variance accounted for:
+
+deviation_norm_sum = 0;
+actual_phi_norm_sum = 0;
 
 for k = 2:T
     eps_k(:,k) = phi_sim(:,k) - H*u(:,k-1);
     u(:,k) = eps_pred_multiplier_matrix*(G*eps_k(:,k) + sigma_e*randn(n_G,1)) + u(:,k-1);
     eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
-    var_eps(k) = var(eps_mean_removed_k(:,k));
+    
+    predicted_phi = eps_mean_removed_k(:,k) + H*u(:,k-1);
+    current_norm = norm(phi_sim(:,k-1) - predicted_phi);
+    deviation_norm_sum = deviation_norm_sum + current_norm;
+    actual_phi_norm_sum = actual_phi_norm_sum + norm(phi_sim(:,k-1));
 end
 
-var_eps = mean(var_eps);
+mean_deviation_norm = mean(deviation_norm_sum);
+mean_actual_norm = mean(actual_phi_norm_sum);
+VAF = max(0,100*(1 - mean_deviation_norm/mean_actual_norm));
 
 end
 

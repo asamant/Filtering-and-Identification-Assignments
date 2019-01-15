@@ -37,15 +37,54 @@ rank_H = rank(H);
 % The function AOloopRW is present in the same directory as the current
 % one. 
 
-% taking the first cell in phiSim for now
-phiSim = phiSim{1,1};
+% Considering the first cell in the given cell array
+phiSim_1 = phiSim{1,1};
 
-[phi_len, n] = size(phiSim);
+% Calculating the dimensions of each phiSim cell
+[phi_len, n] = size(phiSim_1);
+
+% Covariance matrix is square
 covariance_phi = zeros(phi_len, phi_len);
 
-for k = 1:n
-    covariance_k = phiSim(:,k)*(phiSim(:,k)');
-    covariance_phi = covariance_phi + covariance_k;
+% We are provided with a cell array of 20 datasets for phiSim
+num_Datasets = length(phiSim);
+
+variance_closed_loop = 0;
+variance_no_control = 0;
+
+for cellIndex = 1:num_Datasets
+    phi_currentCell = phiSim{1,cellIndex};
+    for k = 1:n
+        covariance_phi = covariance_phi + (phi_currentCell(:,k)*phi_currentCell(:,k)');
+    end
+
+    covariance_phi = covariance_phi/n;
+    
+    variance_closed_loop = variance_closed_loop + AOloopRW(G,H, covariance_phi, sigmae, phi_currentCell);
+    variance_no_control = variance_no_control + AOloop_nocontrol(phi_currentCell,sigmae,H,G);
 end
 
-variance = AOloopRW(G,H, covariance_phi, sigmae, phiSim);
+% Taking the average of the values obtained from all of the provided
+% datasets
+variance_closed_loop = variance_closed_loop/num_Datasets;
+variance_no_control = variance_no_control/num_Datasets;
+
+%% Question 7
+
+% We can clearly see that the variance in the case of the closed-loop
+% config is less than a third as the no-control case's, in terms of magnitude
+
+VAF_cumulative = 0;
+
+for cellIndex = 1:num_Datasets
+    phi_currentCell = phiSim{1,cellIndex};
+    for k = 1:n
+        covariance_phi = covariance_phi + (phi_currentCell(:,k)*phi_currentCell(:,k)');
+    end
+
+    covariance_phi = covariance_phi/n;
+    
+    VAF_cumulative = VAF_cumulative + VAF_RW(G,H, covariance_phi, sigmae, phi_currentCell);
+end
+
+VAF = mean(VAF_cumulative);
