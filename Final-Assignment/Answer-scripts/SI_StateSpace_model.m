@@ -28,43 +28,42 @@ rank_H = rank(H);
 % one.
 
 % Considering the first cell in the given cell array
-phiSim_1 = phiIdent{1,19};
+phiIdent_1 = phiIdent{1,2};
 
 % Calculating the dimensions of each phiSim cell
-[phi_len, n] = size(phiSim_1);
+[phi_len, n] = size(phiIdent_1);
 
 % Size of G matrix
 n_G = size(G,1);
 
 % Number of sample points for phi_sim
-T = length(phiSim_1);
+T = length(phiIdent_1);
 
 % Get sid matrix
-sid = G*phiSim_1 + sigmae*randn(n_G,T);
+sid = G*phiIdent_1 + sigmae*randn(n_G,T);
 
 % Choose s and n paramters
-s = 25;
-n = 23;
+s = 6;
+n = 40;
 
 [As, Cs, Ks] = SubId(sid, s,n);
 
 %% Question 5: Validation
 
-phiSim_2 = phiSim{1,8};
+phiSim_2 = phiSim{1,18};
 
-var_eps = AOloopSID(G,H,As,Cs,Ks,sigmae,phiSim_2);
+[var_eps, VAF] = AOloopSID(G,H,As,Cs,Ks,sigmae,phiSim_2);
 
 %% Question 5: Validation over entire dataset
 
 % We are provided with a cell array of 20 datasets for phiSim
 num_Datasets = length(phiSim);
 
-variance_closed_loop = 0;
-variance_no_control = 0;
+var_eps_total = 0;
 
 for cellIndex = 1:num_Datasets
-    phi_currentCell = phiSim{1,cellIndex};    
-    
+    phi_currentCell = phiSim{1,cellIndex};
+
     variance_closed_loop = variance_closed_loop + AOloopRW(G,H, covariance_phi, sigmae, phi_currentCell);
     variance_no_control = variance_no_control + AOloop_nocontrol(phi_currentCell,sigmae,H,G);
 end
@@ -83,7 +82,7 @@ VAF_cumulative = 0;
 
 for cellIndex = 1:num_Datasets
     phi_currentCell = phiSim{1,cellIndex};
-    
+
     VAF_cumulative = VAF_cumulative + VAF_RW(G,H, covariance_phi, sigmae, phi_currentCell);
 end
 
