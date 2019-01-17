@@ -48,7 +48,19 @@ covariance_phi_1 = cov_phi_1_cumulative/num_Datasets;
 % Computing the values for the Kalman filter
 [A, Cw, K] = computeKalmanAR(covariance_phi_0, covariance_phi_1, G, sigmae);
 
+% Copmuting the variance for the first dataset
 var_KalmanAR = AOloopAR(G,H, covariance_phi_0, sigmae, A, Cw, K, phiSim{1,1});
+
 %% Question 8
 
+VAF_cumulative = 0;
+
+for cellIndex = 1:num_Datasets
+    phi_currentCell = phiSim{1,cellIndex};
+    
+    VAF_cumulative = VAF_cumulative + VAF_VAR(G,H, sigmae, A, K, phi_currentCell);
+end
+
+% Calculating the VAF value
+VAF = VAF_cumulative/num_Datasets;
 

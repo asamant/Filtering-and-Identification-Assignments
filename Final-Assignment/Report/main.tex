@@ -306,13 +306,13 @@ We computed the expression for $\hat\epsilon(k|k)$ in question 3, and substituti
 
 Moreover, since H is invertible, we can further simplify the expression as:
 
-\begin{equation*}
+\begin{equation}\label{eq:delta_uk}
 \hat\delta u(k) = H^{-1}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
-\end{equation*}
+\end{equation}
 
 \subsection*{Question 6}
 
-Given all the data, we compute the values for u(k) recursively based on the values of u(k-1). We take u(1) to be 0, since we assume that for the first iteration, there's no input actuation applied through the deformable mirror. Accordingly, we get:
+Given all the data, we compute the values for u(k) recursively based on the values of u(k-1) as defined by the relation in equation \ref{eq:delta_uk}. We take u(1) to be 0, since we assume that for the first iteration, there's no input actuation applied through the deformable mirror. Accordingly, we get:
 
 \begin{equation*}
 \epsilon(1) = \phi_{sim}(1)
@@ -321,21 +321,22 @@ Given all the data, we compute the values for u(k) recursively based on the valu
 Moreover, since we're provided with $\phi_{sim}$ values but not the values for the actual slope measurements s(k), we compute s(k) as: 
 
 \begin{equation*}
-s(k) = G\epsilon(k) + \sigma_{e}I 
+s(k) = G\epsilon(k) + \sigma_{e}*randn(N_{s},1) 
 \end{equation*}
 
+where \texttt{randn()} is a MATLAB function used for generating a normally distributed random noise vector.
 This s(k) is used in the computation of the optimum u(k) value.
 We iterate over all the time samples to get the u(k) matrix for all input vectors, and once we have these values, we can calculate the $\epsilon$ matrix for all time samples based on: 
 
 \begin{equation*}
-\epsilon(k) = \phi(k) - Hu(k-1)I 
+\epsilon(k) = \phi(k) - Hu(k-1) 
 \end{equation*}
 
-We apply the correction process of subtracting the mean vector from $\epsilon(k)$ and then calculate the variance of the vector. The variance for each time sample is calculated accordingly and the average variance of all time samples is returned by the function.
+We apply the correction process of subtracting the mean vector from $\epsilon(k)$ and then calculate the variance of the vector. The variance for each time sample is calculated accordingly and the average variance of all time samples is returned by the function \texttt{AOloopRW()}.
 
 \subsection*{Question 7}
 
-We compare the variance values returned by the random-walk model-based control design and the open-loop case (in which no control is applied). The variance in the former is returned around a value of 6.5 whereas the latter's returned value is around 22. We can clearly see a reduction in the variance of $\epsilon(k)$ values after controlling the residual wavefront using the DM.
+We compare the variance values returned by the random-walk model-based control design and the open-loop case (in which no control is applied). The variance returned by the former is around a value of 6.5 whereas the latter's returned value is around 22. We can clearly see a reduction in the variance of $\epsilon(k)$ values after controlling the residual wavefront using the DM.
 
 The VAF is calculated based on another function, \texttt{VAF\_RW} in which the $\phi(k+1|k)$ values are compared against $\phi_{sim}(k+1)$ values (after taking into consideration the mean value subtraction as performed in Question 6). The value returned is around 70\%.
 
@@ -508,7 +509,7 @@ Here, x(k) is the state vector, y(k) is the output, and A,B, and C are the state
 Based on the control law represented by equation (6) in the assignment, we need to minimize the value of $\|\hat\epsilon(k+1|k)\|_{2}^{2}$ by controlling the input values u(k). From equation \ref{eq:eps_optimal}, we know that we need to minimize the value of:
 
 \begin{equation}
-(Ks(k) + (A - KG)\hat\epsilon(k|k-1)) + AHu(k-1) - Hu(k)
+\|(Ks(k) + (A - KG)\hat\epsilon(k|k-1)) + AHu(k-1) - Hu(k) \|_{2}^{2}
 \end{equation}
 
 Let us take $\xi(k) = Hu(k) - AHu(k-1)$
@@ -535,6 +536,21 @@ That is to say,
 
 Hence the optimum input vectors can be calculated recursively.
 
+\subsection*{Question 7}
+
+The first function, \texttt{computeKalmanAR()} is used for calculating the values of A, $C_{w}$, and K using expressions derived previously in questions 1,2, and 4 respectively.
+
+The function \texttt{AOloopAR()} is used for calculating the values of u(k) for which the 2-norm of $\epsilon(k+1|k)$ is minimum. It is performed using the expression derived in Question 6, and taking $\hat\epsilon(1|0)$ and u(0) to be 0.
+
+u(k) and $\hat\epsilon(k+1|k)$ for the remaining indices can be calculated based on the recursive expressions for the two quantities. Once we have the u(k) values, the $\epsilon(k)$ values can be calculated as $\phi_{sim}(k) - Hu(k-1)$, and accordingly the average variance value can be calculated, as was done in Question (1.) 6 of the random walk model approach.
+
+The variance value of $\epsilon$ returned by \texttt{AOloopAR()} is around 3.5.
+
+\subsection*{Question 8}
+
+We compare the average variance value obtained in this case as against in the random walk model's. The value is further reduced using this model, and we see that this model outperforms the random walk model in terms of minimizing the variance of the estimates.
+
+We compute the VAF for the turbulence wavefront one step ahead predicted values as in the previous case, and obtain a value of around 83 \%.
 
 %----------------------------------------------- --------------------------------
 % REFERENCES
