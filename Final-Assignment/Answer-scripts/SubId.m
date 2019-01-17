@@ -16,7 +16,6 @@ N = size(sid,2);
 M = size(sid,1);
 
 % Construct Hankel Matrix using sid
-%Y = hankel(sid,1,s,N-s+1);
 Y = [];
 sid_stacked = sid(:);
 
@@ -33,10 +32,7 @@ R22 = R(1:M*s,1:M*s);
 
 [U,Sigma,V] = svd(R32*inv(R22)*Ypast);
 
-% assignin('base','V',V);
-% assignin('base','R22',R22);
-% assignin('base','R32',R32);
-% assignin('base','U',U);
+% Assigning Sigma for semilogy for choosing n
 assignin('base','Sigma',Sigma);
 
 % Reduced System

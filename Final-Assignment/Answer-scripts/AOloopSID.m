@@ -78,7 +78,10 @@ u(:,1) = Hterm*phi_pred;
 eps_mean_removed_k(:,1) = eps_k(:,1) - mean(eps_k(:,1));
 var_eps(1) = var(eps_mean_removed_k(:,1));
 
-for k = 2:T
+actual_phi_norm_sum = 0; % For VAF calculation
+deviation_norm_sum = 0; % For VAF calculation
+
+for k = 2:T-1
     % Calculate actual residual epsilon
     eps_k(:,k) = phi_sim(:,k) - H*u(:,k-1);            
     %s_current = G*eps_k(:,k) + sigma_e*randn(n_G,1);
@@ -95,15 +98,19 @@ for k = 2:T
     eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
     var_eps(k) = var(eps_mean_removed_k(:,k));
     
-    % VAF calculation    
-    %predicted_phi = predicted_phi - mean(predicted_phi);
-    %phi_sim_mean_removed = phi_sim(:,k+1) - mean(phi_sim(:,k+1));
-    %current_norm = (norm(phi_sim_mean_removed - predicted_phi))^2;
-    %deviation_norm_sum = deviation_norm_sum + current_norm;
-    %actual_phi_norm_sum = actual_phi_norm_sum + (norm(phi_sim_mean_removed))^2;
+    % VAF calculation
+    phi_pred_mean_removed = phi_pred - mean(phi_pred);
+    phi_sim_mean_removed = phi_sim(:,k+1) - mean(phi_sim(:,k+1));
+    current_norm = (norm(phi_sim_mean_removed - phi_pred_mean_removed))^2;
+    deviation_norm_sum = deviation_norm_sum + current_norm;
+    actual_phi_norm_sum = actual_phi_norm_sum + (norm(phi_sim_mean_removed))^2;
 end
 
 var_eps = mean(var_eps);
+
+mean_deviation_norm = deviation_norm_sum/(T-2);
+mean_actual_norm = actual_phi_norm_sum/(T-2);
+VAF = max(0,100*(1 - mean_deviation_norm/mean_actual_norm));
 
 end
 
