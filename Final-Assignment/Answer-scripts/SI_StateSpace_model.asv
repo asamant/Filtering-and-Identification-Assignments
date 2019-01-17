@@ -28,7 +28,7 @@ rank_H = rank(H);
 % one.
 
 % Considering the first cell in the given cell array
-phiSim_1 = phiIdent{1,19};
+phiSim_1 = phiSim{1,1};
 
 % Calculating the dimensions of each phiSim cell
 [phi_len, n] = size(phiSim_1);
@@ -50,11 +50,11 @@ n = 23;
 
 %% Question 5: Validation
 
-phiSim_2 = phiSim{1,8};
+phiSim_2 = phiSim{1,2};
 
 var_eps = AOloopSID(G,H,As,Cs,Ks,sigmae,phiSim_2);
 
-%% Question 5: Validation over entire dataset
+%% Question
 
 % We are provided with a cell array of 20 datasets for phiSim
 num_Datasets = length(phiSim);

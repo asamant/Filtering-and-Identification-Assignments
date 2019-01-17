@@ -37,7 +37,7 @@ R22 = R(1:M*s,1:M*s);
 % assignin('base','R22',R22);
 % assignin('base','R32',R32);
 % assignin('base','U',U);
-% assignin('base','Sigma',Sigma);
+assignin('base','Sigma',Sigma);
 
 % Reduced System
 U = U(:,1:n);
@@ -69,7 +69,7 @@ R = Covar(n+1:end,n+1:end);
 % Choosing P from the solution of the DARE, we can define a Kalman gain Ks
 % that is asymptotically stable.
 % Solution of DARE:
-E = eye(5,5);
+E = eye(n,n);
 [P,~,~] = dare(As',Cs',Q,R,S,E);
 
 % Kalman Gain:

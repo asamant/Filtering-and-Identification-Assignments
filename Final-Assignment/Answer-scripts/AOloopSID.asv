@@ -86,7 +86,7 @@ for k = 2:T
     
     u(:,k) = Hterm*phi_pred;
     
-    % Mean removal and Variance
+    % Mean removal and
     eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
     var_eps(k) = var(eps_mean_removed_k(:,k));
 end
