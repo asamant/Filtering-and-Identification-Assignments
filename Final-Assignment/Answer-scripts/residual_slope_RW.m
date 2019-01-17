@@ -57,7 +57,18 @@ for k = 2:T
     u(:,k) = (V1/Sigma_SVD)*U1'*Y_k;
     eps_k(:,k) = phi_sim(:,k) - H*u(:,k-1);
     
-    var_s(k) = var(eps_k(:,k)) - mean(eps_k(:,k));
+    var_s(k) = var(eps_k(:,k) - mean(eps_k(:,k)));
 end
 
 var_s = mean(var_s);
+
+%% Question 4.3
+
+phi_vec = null(G);
+%phi_vec = phi_sim(:,1);
+phi_matrix = zeros(7,7);
+for i = 1:7
+    phi_matrix(:,i) = phi_vec(7*(i-1) + 1:7*i);
+end
+
+imagesc(phi_matrix)
