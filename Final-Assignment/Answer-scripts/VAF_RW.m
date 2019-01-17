@@ -21,7 +21,7 @@ T = length(phi_sim);
 
 u = zeros(n_H,T);
 
-% This term is multiplied with the slope vector to obtain the eps_hat(k|k)
+% The following term is multiplied with the slope vector to obtain the eps_hat(k|k)
 % value
 eps_pred_multiplier_matrix = H\(covariance_phi*G'/(G*covariance_phi*G' + (sigma_e^2)*eye(n_G)));
 
@@ -54,19 +54,22 @@ eps_mean_removed_k(:,1) = eps_k(:,1) - mean(eps_k(:,1));
 deviation_norm_sum = 0;
 actual_phi_norm_sum = 0;
 
-for k = 2:T
+for k = 2:T-1
     eps_k(:,k) = phi_sim(:,k) - H*u(:,k-1);
-    u(:,k) = eps_pred_multiplier_matrix*(G*eps_k(:,k) + sigma_e*randn(n_G,1)) + u(:,k-1);
-    eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
+    slope_k = G*eps_k(:,k) + sigma_e*randn(n_G,1);
+    u(:,k) = eps_pred_multiplier_matrix*(slope_k) + u(:,k-1);
+    %eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
     
-    predicted_phi = eps_mean_removed_k(:,k) + H*u(:,k-1);
-    current_norm = norm(phi_sim(:,k-1) - predicted_phi);
+    predicted_phi = H*eps_pred_multiplier_matrix*slope_k + H*u(:,k-1);
+    predicted_phi = predicted_phi - mean(predicted_phi);
+    phi_sim_mean_removed = phi_sim(:,k+1) - mean(phi_sim(:,k+1));
+    current_norm = (norm(phi_sim_mean_removed - predicted_phi))^2;
     deviation_norm_sum = deviation_norm_sum + current_norm;
-    actual_phi_norm_sum = actual_phi_norm_sum + norm(phi_sim(:,k-1));
+    actual_phi_norm_sum = actual_phi_norm_sum + (norm(phi_sim_mean_removed))^2;
 end
 
-mean_deviation_norm = mean(deviation_norm_sum);
-mean_actual_norm = mean(actual_phi_norm_sum);
+mean_deviation_norm = deviation_norm_sum/(T-2);
+mean_actual_norm = actual_phi_norm_sum/(T-2);
 VAF = max(0,100*(1 - mean_deviation_norm/mean_actual_norm));
 
 end

@@ -78,6 +78,7 @@ VAF_cumulative = 0;
 
 for cellIndex = 1:num_Datasets
     phi_currentCell = phiSim{1,cellIndex};
+    covariance_phi = zeros(phi_len, phi_len);
     for k = 1:n
         covariance_phi = covariance_phi + (phi_currentCell(:,k)*phi_currentCell(:,k)');
     end
@@ -87,4 +88,4 @@ for cellIndex = 1:num_Datasets
     VAF_cumulative = VAF_cumulative + VAF_RW(G,H, covariance_phi, sigmae, phi_currentCell);
 end
 
-VAF = mean(VAF_cumulative);
+VAF = VAF_cumulative/num_Datasets;

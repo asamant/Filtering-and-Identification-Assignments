@@ -312,7 +312,32 @@ Moreover, since H is invertible, we can further simplify the expression as:
 
 \subsection*{Question 6}
 
+Given all the data, we compute the values for u(k) recursively based on the values of u(k-1). We take u(1) to be 0, since we assume that for the first iteration, there's no input actuation applied through the deformable mirror. Accordingly, we get:
 
+\begin{equation*}
+\epsilon(1) = \phi_{sim}(1)
+\end{equation*}
+
+Moreover, since we're provided with $\phi_{sim}$ values but not the values for the actual slope measurements s(k), we compute s(k) as: 
+
+\begin{equation*}
+s(k) = G\epsilon(k) + \sigma_{e}I 
+\end{equation*}
+
+This s(k) is used in the computation of the optimum u(k) value.
+We iterate over all the time samples to get the u(k) matrix for all input vectors, and once we have these values, we can calculate the $\epsilon$ matrix for all time samples based on: 
+
+\begin{equation*}
+\epsilon(k) = \phi(k) - Hu(k-1)I 
+\end{equation*}
+
+We apply the correction process of subtracting the mean vector from $\epsilon(k)$ and then calculate the variance of the vector. The variance for each time sample is calculated accordingly and the average variance of all time samples is returned by the function.
+
+\subsection*{Question 7}
+
+We compare the variance values returned by the random-walk model-based control design and the open-loop case (in which no control is applied). The variance in the former is returned around a value of 6.5 whereas the latter's returned value is around 22. We can clearly see a reduction in the variance of $\epsilon(k)$ values after controlling the residual wavefront using the DM.
+
+The VAF is calculated based on another function, \texttt{VAF\_RW} in which the $\phi(k+1|k)$ values are compared against $\phi_{sim}(k+1)$ values (after taking into consideration the mean value subtraction as performed in Question 6). The value returned is around 70\%.
 
 \section*{2. VAR Model}
 
@@ -359,7 +384,7 @@ Thus, we get the relation:
 
 and hence we calculate:
 \begin{equation*}
-	A = C_{\phi}(1)/C_{\phi}(0)
+	A = C_{\phi}(1)C_{\phi}(0)^{-1}
 \end{equation*}
 
 
@@ -422,7 +447,7 @@ Substituting this expression for $\phi(k)$ in equation (10), we get:
 \begin{equation*}
 \begin{aligned}
 \epsilon(k+1) + Hu(k) = A\epsilon(k) + AHu(k-1) + w(k)\\
-\implies \epsilon(k+1) = \epsilon(k) + AHu(k-1) - Hu(k) + w(k)
+\implies \epsilon(k+1) = A\epsilon(k) + AHu(k-1) - Hu(k) + w(k)
 \end{aligned}
 \end{equation*} 
 
@@ -430,21 +455,86 @@ Combining the above relation with equation (5) from the assignment, we have the 
 
 \begin{equation*}
 \begin{aligned}
-\epsilon(k+1) &= \epsilon(k) + \Gamma(k) + w(k)\\
+\epsilon(k+1) &= A\epsilon(k) + \xi(k) + w(k)\\
 s(k) &= G\epsilon(k) + e(k)\\
 &where\\
-\Gamma(k) &= AHu(k-1) - Hu(k)
+\xi(k) &= AHu(k-1) - Hu(k)
 \end{aligned}
 \end{equation*} 
 
-
 \subsection*{Question 4}
 
-Use an expression similar to Kalman Gain to get ideal predictor.
+Based on the state-space formulation from Question 3, we can express the Kalman filter in the observer form as:
+
+\begin{equation*}
+	\hat\epsilon(k+1) = (A - KG)\epsilon(k) + AHu(k-1) - Hu(k) + Ks(k)
+\end{equation*}
+
+We make use of the following DARE to compute the covariance matrix of $\epsilon(k)$, P, to which the optimal estimate of $\hat P(k+1|k)$ converges on solving the Kalman filter problem, as k $\rightarrow \infty$:
+
+\begin{equation*}
+\begin{aligned}
+P &= APA^{T} + Q - (APG^{T})(GPG^{T} + R)^{-1}(APG^{T})^{T}\\
+&where:\\
+Q &= C_{w}\\
+R &= E[v(k)v(k)^{T}]
+\end{aligned}
+\end{equation*}
+
+An important point to note here is that v(k) and w(k) are taken to be uncorrelated, and the matrices A and G to be time-invariant.
+
+Based on the P matrix calculated on solving the above Riccati equation, we compute the value of the stationary Kalman gain,
+
+\begin{equation*}
+	K = APG^{T}(GPG^{T} + R)^{-1}
+\end{equation*}
 
 \subsection*{Question 5}
 
-Find Optimal Increment.
+The minimum unbiased variance estimate for a state $x(k+1)$ is given by the following expression, which is derived based on the conditions of the conventional Kalman filtering problem (here, we assume a stationary Kalman filter):
+
+\begin{equation*}
+\hat{x}(k+1|k) = Ky(k) + Bu(k) + (A - KC)\hat{x}(k|k-1)
+\end{equation*}
+
+Here, x(k) is the state vector, y(k) is the output, and A,B, and C are the state-space matrices. In our case, based on our LTI state-space model with $\epsilon(k)$ being the state vector, s(k) being the output vector, and A and G being the state-space matrices, we compute the expression for the optimal one step ahead prediction recursively as:
+
+\begin{equation}\label{eq:eps_optimal}
+	\hat\epsilon(k+1|k) = Ks(k) + AHu(k-1) - Hu(k) + (A - KG)\hat\epsilon(k|k-1)
+\end{equation}
+
+\subsection*{Question 6}
+
+Based on the control law represented by equation (6) in the assignment, we need to minimize the value of $\|\hat\epsilon(k+1|k)\|_{2}^{2}$ by controlling the input values u(k). From equation \ref{eq:eps_optimal}, we know that we need to minimize the value of:
+
+\begin{equation}
+(Ks(k) + (A - KG)\hat\epsilon(k|k-1)) + AHu(k-1) - Hu(k)
+\end{equation}
+
+Let us take $\xi(k) = Hu(k) - AHu(k-1)$
+
+In the above equation, let us denote:
+
+$Y(k) = Ks(k) + (A - KG)\hat\epsilon(k|k-1) + AHu(k-1)$
+
+Hence, our minimization problem becomes:
+
+\begin{equation}
+\underset{u(k)}{min} \, \| Y(k) - Hu(k) \|_{2}^{2}
+\end{equation}
+
+Knowing H to be full-rank and square, we have the linear least-squares solution,
+
+$\hat{u}(k) = H^{-1}Y(k)$
+
+That is to say,
+
+\begin{equation}
+\hat{u}(k) = H^{-1}(Ks(k) + (A - KG)\hat\epsilon(k|k-1)) + H^{-1}AHu(k-1)
+\end{equation}
+
+Hence the optimum input vectors can be calculated recursively.
+
 
 %----------------------------------------------- --------------------------------
 % REFERENCES
