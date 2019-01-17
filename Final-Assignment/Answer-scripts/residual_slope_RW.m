@@ -44,7 +44,7 @@ eps_k = zeros(n_H,length(phi_sim));
 
 s_k(:,1) = G*phi_sim(:,1) + sigmae*randn(n_G,1);
 
-eps_pred_multiplier_matrix = H\(covariance_phi*G'/(G*covariance_phi*G' + (sigmae^2)*eye(n_G)));
+eps_pred_multiplier_matrix = (covariance_phi*G'/(G*covariance_phi*G' + (sigmae^2)*eye(n_G)));
 
 % Linear least-squares solution 
 u(:,1) = (V1/Sigma_SVD)*U1'*(G*eps_pred_multiplier_matrix*s_k(:,1));
