@@ -1,3 +1,5 @@
+% Part II - VAR model
+
 close all;
 
 load systemMatrices.mat; 
