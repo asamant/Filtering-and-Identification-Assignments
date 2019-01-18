@@ -1,4 +1,5 @@
-% Part 4 - Critical thinking
+% Filtering and Identification - final assignment
+% Section 4 - Critical thinking
 
 close all;
 

@@ -1,3 +1,5 @@
+%% AOLoopAR function
+
 function [var_eps] = AOloopAR(G,H, covariance_phi, sigma_e, A, Cw, K, phi_sim)
 % Variance calculation of an AO system in the closed-loop configuration
 % with a Kalman filter involved

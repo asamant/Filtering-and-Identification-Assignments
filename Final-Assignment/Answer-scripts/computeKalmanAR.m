@@ -1,3 +1,5 @@
+%% computeKalmanAR function
+
 function [A, Cw, K] = computeKalmanAR(C_phi_0, C_phi_1, G, sigma_e)
 
 %COMPUTEKALMANAR Computes parameters for the Kalman filter in the VAR model

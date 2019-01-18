@@ -1,14 +1,15 @@
+%% VAF calculation function for the random walk model
+
 function [VAF] = VAF_RW(G,H, covariance_phi, sigma_e, phi_sim)
-% Variance calculation of an AO system in the closed-loop configuration
+% VAF calculation
 % IN
 % G     : measurement matrix 
 % H     : influence matrix mapping the wavefront on the mirror
 % covariance_phi  : covariance matrix of the turbulence wavefront
-% sigma_eps : measurement noise parameter for determining its covariance
+% sigma_e : measurement noise parameter for determining its covariance
 % phi_sim : simulation data for the wavefront
 % OUT
-% var_eps : variance of the residual wavefront after taking N_t points
-% within the closed-loop operation
+% VAF : VAF value
 
 % dimension lifted wavefront
 n_H = size(H,1);

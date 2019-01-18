@@ -1,5 +1,7 @@
+%% SubId function
+
 function [As, Cs, Ks] = SubId(sid,s,n)
-% Variance calculation of an AO system in the closed-loop configuration
+% SubID calculations
 % IN
 % sid : Slopes of Identification data
 % s   : Parameter 's'. Rows of Henkel matrix.

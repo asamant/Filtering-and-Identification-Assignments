@@ -1,3 +1,5 @@
+%% AOloopRW function
+
 function [var_eps] = AOloopRW(G,H, covariance_phi, sigma_e, phi_sim)
 % Variance calculation of an AO system in the closed-loop configuration
 % with the Random Walk model used for calculations

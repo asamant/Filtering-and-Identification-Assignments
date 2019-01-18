@@ -1,14 +1,16 @@
+%% VAF calculation function for the VAR model
+
 function [VAF] = VAF_VAR(G,H, sigma_e, A, K, phi_sim)
-% Variance calculation of an AO system in the closed-loop configuration
+% VAF calculation
 % IN
 % G     : measurement matrix 
 % H     : influence matrix mapping the wavefront on the mirror
-% covariance_phi  : covariance matrix of the turbulence wavefront
 % sigma_e : measurement noise parameter for determining its covariance
+% A : A matrix from the state space model
+% K : Kalman gain value
 % phi_sim : simulation data for the wavefront
 % OUT
-% var_eps : variance of the residual wavefront after taking N_t points
-% within the closed-loop operation
+% VAF : VAF value
 
 % dimension lifted wavefront
 n_H = size(H,1);

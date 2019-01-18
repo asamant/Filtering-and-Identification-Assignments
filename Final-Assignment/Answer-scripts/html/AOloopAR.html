@@ -1,0 +1,242 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>AOloopAR</title><meta name="generator" content="MATLAB 9.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-18"><meta name="DC.source" content="AOloopAR.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [var_eps] = AOloopAR(G,H, covariance_phi, sigma_e, A, Cw, K, phi_sim)
+<span class="comment">% Variance calculation of an AO system in the closed-loop configuration</span>
+<span class="comment">% with a Kalman filter involved</span>
+<span class="comment">% IN</span>
+<span class="comment">% G     : measurement matrix</span>
+<span class="comment">% H     : influence matrix mapping the wavefront on the mirror</span>
+<span class="comment">% covariance_phi  : covariance matrix of the turbulence wavefront</span>
+<span class="comment">% sigma_e : measurement noise parameter for determining its covariance</span>
+<span class="comment">% A : A matrix from the state-space model</span>
+<span class="comment">% Cw : Covariance matrix of the process noise</span>
+<span class="comment">% K : Stationary Kalman filter gain</span>
+<span class="comment">% phi_sim : simulation data for the wavefront</span>
+<span class="comment">% OUT</span>
+<span class="comment">% var_eps : variance of the residual wavefront after taking N_t points</span>
+<span class="comment">% within the closed-loop operation</span>
+
+<span class="comment">% dimension lifted wavefront</span>
+n_H = size(H,1);
+
+<span class="comment">% dimension lifted sensor slopes</span>
+n_G = size(G,1);
+
+<span class="comment">% Number of sample points for phi_sim</span>
+T = length(phi_sim);
+
+u = zeros(n_H,T);
+
+<span class="comment">% epsilon matrix</span>
+eps_k = zeros(size(phi_sim,1),T);
+
+eps_kplus1k = zeros(size(phi_sim,1),T);
+
+<span class="comment">% epsilon matrix with mean removed:</span>
+eps_mean_removed_k = zeros(size(phi_sim,1),T);
+
+<span class="comment">% Constructing a vector of all the variance values for eps</span>
+var_eps = zeros(T,1);
+
+<span class="comment">% An assumption is that H is full rank.</span>
+
+<span class="comment">% s(k) = G*eps(k) + e(k)</span>
+<span class="comment">% Hence s(k) = G*phi(k) - G*H*u(k-1) + e(k)</span>
+
+<span class="comment">% u(k) = 0 for k &lt; 1</span>
+
+<span class="comment">% eps(k+1|k) = Ks(k) + A*H*u(k-1) - H*u(k) + (A - KG)eps(k|k-1)</span>
+
+<span class="comment">% eps(k+1|k) = K*G*phi(k) - K*G*H*u(k-1) + K*e(k) + A*H*u(k-1) - H*u(k) + (A - KG)eps(k|k-1)</span>
+
+<span class="comment">% First slope value, no input applied before</span>
+s_k = G*phi_sim(:,1) + sigma_e*randn(n_G,1);
+
+<span class="comment">% Initial input</span>
+u(:,1) = H\(K*s_k);
+
+<span class="comment">% eps(1|0) = 0;</span>
+<span class="comment">%eps_kplus1k = eps(k+1|k)</span>
+eps_kplus1k(:,1) = K*G*phi_sim(:,1) + K*sigma_e*randn(n_G,1) - H*u(:,1);
+
+<span class="comment">% Initial eps(k)</span>
+eps_k(:,1) = phi_sim(:,1);
+eps_mean_removed_k(:,1) = eps_k(:,1) - mean(eps_k(:,1));
+
+var_eps(1) = var(eps_mean_removed_k(:,1));
+
+<span class="keyword">for</span> k = 2:T
+    <span class="comment">% Slope value</span>
+    s_k = G*phi_sim(:,k) - G*H*u(:,k-1) + sigma_e*randn(n_G,1);
+
+    <span class="comment">% Optimum input value</span>
+    u(:,k) = H\(K*s_k + (A - K*G)*eps_kplus1k(:,k-1) + A*H*u(:,k-1));
+
+    <span class="comment">% Next eps(k+1|k) value</span>
+    eps_kplus1k(:,k) = K*s_k + A*H*u(:,k-1) - H*u(:,k) + (A - K*G)*eps_kplus1k(:,k-1);
+
+    <span class="comment">% eps(k) value = phi(k) - Hu(k-1)</span>
+    eps_k(:,k) = phi_sim(:,k) - H*u(:,k-1);
+    eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
+    var_eps(k) = var(eps_mean_removed_k(:,k));
+<span class="keyword">end</span>
+
+var_eps = mean(var_eps);
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [var_eps] = AOloopAR(G,H, covariance_phi, sigma_e, A, Cw, K, phi_sim)
+% Variance calculation of an AO system in the closed-loop configuration
+% with a Kalman filter involved
+% IN
+% G     : measurement matrix 
+% H     : influence matrix mapping the wavefront on the mirror
+% covariance_phi  : covariance matrix of the turbulence wavefront
+% sigma_e : measurement noise parameter for determining its covariance
+% A : A matrix from the state-space model
+% Cw : Covariance matrix of the process noise
+% K : Stationary Kalman filter gain
+% phi_sim : simulation data for the wavefront
+% OUT
+% var_eps : variance of the residual wavefront after taking N_t points
+% within the closed-loop operation
+
+% dimension lifted wavefront
+n_H = size(H,1);
+
+% dimension lifted sensor slopes
+n_G = size(G,1);
+
+% Number of sample points for phi_sim
+T = length(phi_sim);
+
+u = zeros(n_H,T);
+
+% epsilon matrix
+eps_k = zeros(size(phi_sim,1),T);
+
+eps_kplus1k = zeros(size(phi_sim,1),T);
+
+% epsilon matrix with mean removed:
+eps_mean_removed_k = zeros(size(phi_sim,1),T);
+
+% Constructing a vector of all the variance values for eps
+var_eps = zeros(T,1);
+
+% An assumption is that H is full rank.
+
+% s(k) = G*eps(k) + e(k)
+% Hence s(k) = G*phi(k) - G*H*u(k-1) + e(k)
+
+% u(k) = 0 for k < 1
+
+% eps(k+1|k) = Ks(k) + A*H*u(k-1) - H*u(k) + (A - KG)eps(k|k-1)
+
+% eps(k+1|k) = K*G*phi(k) - K*G*H*u(k-1) + K*e(k) + A*H*u(k-1) - H*u(k) + (A - KG)eps(k|k-1)
+
+% First slope value, no input applied before
+s_k = G*phi_sim(:,1) + sigma_e*randn(n_G,1);
+
+% Initial input
+u(:,1) = H\(K*s_k);
+
+% eps(1|0) = 0;
+%eps_kplus1k = eps(k+1|k)
+eps_kplus1k(:,1) = K*G*phi_sim(:,1) + K*sigma_e*randn(n_G,1) - H*u(:,1);  
+
+% Initial eps(k)
+eps_k(:,1) = phi_sim(:,1);
+eps_mean_removed_k(:,1) = eps_k(:,1) - mean(eps_k(:,1));
+
+var_eps(1) = var(eps_mean_removed_k(:,1));
+
+for k = 2:T
+    % Slope value
+    s_k = G*phi_sim(:,k) - G*H*u(:,k-1) + sigma_e*randn(n_G,1);
+    
+    % Optimum input value
+    u(:,k) = H\(K*s_k + (A - K*G)*eps_kplus1k(:,k-1) + A*H*u(:,k-1));
+    
+    % Next eps(k+1|k) value
+    eps_kplus1k(:,k) = K*s_k + A*H*u(:,k-1) - H*u(:,k) + (A - K*G)*eps_kplus1k(:,k-1);
+    
+    % eps(k) value = phi(k) - Hu(k-1)
+    eps_k(:,k) = phi_sim(:,k) - H*u(:,k-1);
+    eps_mean_removed_k(:,k) = eps_k(:,k) - mean(eps_k(:,k));
+    var_eps(k) = var(eps_mean_removed_k(:,k));
+end
+
+var_eps = mean(var_eps);
+
+end
+
+
+##### SOURCE END #####
+--></body></html>

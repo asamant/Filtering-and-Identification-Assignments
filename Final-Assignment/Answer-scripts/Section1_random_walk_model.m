@@ -1,6 +1,5 @@
 % Filtering and Identification - final assignment
-% Part I - Random Walk Model
-%
+% Section 1 - Random Walk Model
 
 close all;
 

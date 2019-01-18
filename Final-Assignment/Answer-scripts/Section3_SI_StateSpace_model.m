@@ -1,5 +1,5 @@
 % Filtering and Identification - final assignment
-% Part III - SI State Space Model
+% Section 3 - SI State Space Model
 %
 
 close all;

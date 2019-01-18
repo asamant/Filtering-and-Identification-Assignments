@@ -1,3 +1,5 @@
+%% AOloopSID function
+
 function [var_eps, VAF] = AOloopSID(G,H,As,Cs,Ks,sigma_e,phi_sim)
 % Variance calculation of an AO system in the closed-loop configuration,
 % using the Subspace Identification model
