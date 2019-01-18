@@ -714,9 +714,29 @@ The analytical solution looks like:\\
 \end{equation}
 Hence we have found a minimising control input $u$.
 \subsection*{Question 5}
-
+\textbf{Approach:}
+We ran the subspace Identification and Validation for the given datasets $\phi_{ident}$ and $\phi_{sim}$ respectively.\\
+The System Identification cycle was completed multiple times for different sets of $\phi_{ident}$ and $\phi_{sim}$ to avoid overfitting any particular dataset and to arrive at reliable average variance and VAF values.\\
+Matlab Implementation attached in the Appendix.
 \subsection*{Question 6}
-
+\textbf{Results:}
+\begin{itemize}
+	\item \textbf{Average VAF} for the estimate $\hat{\phi}(k+1|k)$ achieved through this method is \textbf{90.8295\%}. This clearly shows that the state space turbulence model, found using the Subspace Identification method, works best as compared to models in Part 1 and 2 in terms of estimating the actual wavefront $\phi$.
+	\item \textbf{Average Variance} of the residual achieved through this method is \textbf{2.0329}. This displays the improved closed loop performance of our method used in Part 3 as compared to Part 1 and 2.
+	\item The parameter $n$ for Subspace Identification was chosen by observing the Singular Values of the RQ approximation $R_{21} R_{11}^{-1} Z_N$ since this SVD has the same column space as the Observability matrix $O_s$. The plot for the Singular values is shown in Figure 1 below:\\
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=0.9\linewidth]{SubIDSVD.JPG}
+	\caption{Singular Value Distribution of $R_{21} R_{11}^{-1} Z_N$}
+	\label{fig:SVD SubID}
+\end{figure}
+	An analysis of this distribution shows that the first 3 to 6 singular values are the most important and subsequent Singular values are quite close to each other in terms of magnitude. Thus, a mimimum order of 6 is essential. While there are improvements on choosing a larger order n, we get diminishing returns. Another consideration for $n$ is the amount of computation that would be required for the turbulence model identification and validation when choosing a large $n$.\\
+	After experimenting  with different identification datasets and validating them, we arrived at an optimum value of \textbf{$n = 60$}. This captures most of the information from the dataset while not being too large for computation and achieves good results for Variance and VAF
+	\item The parameter $s$ for Subspace Identification was chosen based on the law: $2p^2s > n$, where $p$ is the number of lenslets in the Shack-Hartmann sensor and so $(p+1)^2$ is the dimension of a wavefront $\phi$. In principle, this condition ensures that $s$ is large enough to identify an $n^{th}$ order system and satisfies rank conditions.\\
+	After experimenting  with different identification datasets and validating them, we arrived at an optimum value of $s = 6$. We noticed that using a large value of $s$ i.e. a value close to $n$ leads to worse performance. Hence s was kept small while still satisfying the law: $2p^2s > n$.
+	\item The parameters $N_{val}$ and $N_{id}$ were not used since we performed our validation on the simulation dataset $\phi_{sim}$ in the 'AOlooSID' function.
+	
+\end{itemize}
 \section*{4. Critical Thinking}
 
 \subsection*{Question 1}
