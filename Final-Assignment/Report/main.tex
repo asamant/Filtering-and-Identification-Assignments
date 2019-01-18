@@ -25,7 +25,7 @@
 \usepackage{sectsty}
 \usepackage{url}
 \usepackage{amsmath}
-
+\usepackage{upgreek}
 
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
 \onehalfspacing
@@ -551,6 +551,94 @@ The variance value of $\epsilon$ returned by \texttt{AOloopAR()} is around 3.5.
 We compare the average variance value obtained in this case as against in the random walk model's. The value is further reduced using this model, and we see that this model outperforms the random walk model in terms of minimizing the variance of the estimates.
 
 We compute the VAF for the turbulence wavefront one step ahead predicted values as in the previous case, and obtain a value of around 83 \%.
+
+\section*{3. Subspace Identification}
+
+We are provided with a turbulence state space model description with a general state vector $x$ and are tasked with finding the Matrices $A_s$, $C_s$ and the Kalman gain $K_s$ of the system in innovation form.
+
+\begin{equation}
+\begin{aligned}
+x(k+1) &= A_s x(k) + K_s v(k)\\
+s(k) &= C_s x(k) + v(k)
+\end{aligned}
+\end{equation}
+
+We generate the identification data i.e. $s_id$ using the provided $\phi_{id}$ data.
+
+\subsection*{Question 1}
+We use the N4SID method to estimate the State matrices and the state sequence. This is to ensure that we get the matrices and the Kalman gain up to the same similarity transformation.
+\\
+\textbf{Data Equation:}\\
+\begin{equation}
+Y_{s,s,N} = O_s X_{s,N} + \uptau_{v,s} V_{s,s,N}
+\end{equation}
+Where $Y$,$X$ and $V$ are the Hankel Matrices and $O_s$ is the observability matrix. $\uptau$ is the Toeplitz matrix for the innovation signal.\\
+\textbf{Instrumental Variable:}\\
+The instrumental variable for our data equation is chosen as:\\
+\begin{equation*}
+Z_N = Y_{0,s,N}
+\end{equation*}
+This $Z_N$ thus eliminates $V_{s,s,N}$ from the data equation and gives:
+\begin{equation*}
+\underset{N\rightarrow \infty}{Lt} \frac{1}{N} Y_{s,s,N} Y_{o,s,N}^{T} = \underset{N\rightarrow \infty}{Lt} \frac{1}{N} O_{s} X_{s,N} Y_{o,s,N}^{T}
+\end{equation*}
+\\
+We use an RQ factorization of the Instrumental variable for efficiency:\\
+\begin{equation*}
+\begin{bmatrix}
+Y_{0,s,N}\\
+Y_{s,s,N}\\
+\end{bmatrix}
+ = \begin{bmatrix}
+ R_{11} & 0\\
+ R_{21} & R_{22}\\
+ \end{bmatrix}
+ \begin{bmatrix}
+ Q_1\\
+ Q_2\\
+ \end{bmatrix}
+\end{equation*}
+\\
+And so,
+\begin{equation}
+O_s X_{s,N} \approx R_{21} R_{11}^{-1} Z_N
+\end{equation}
+\\
+The rank of the above expression (11) is n.\\
+Hence we can use this RQ approximation and take it's SVD:\\
+\begin{equation*}
+R_{21} R_{11}^{-1} Z_N = U_n \Sigma_n V_n^T
+\end{equation*}
+State sequence is hence estimated as,
+\begin{equation*}
+\hat{X}_{s,N} = \Sigma_n^{1/2} V_n^T
+\end{equation*}
+We now use this state sequence to find our State Matrices by solving the linear least squares problem:
+\begin{equation*}
+\|
+\begin{bmatrix}
+\hat{X}_{s+1,N}\\
+\hat{Y}_{s,1,N-1}\\
+\end{bmatrix}
+- \begin{bmatrix}
+A_T\\
+C_T\\
+\end{bmatrix}
+\begin{bmatrix}
+\hat{X}_{s,N-1}\\
+\end{bmatrix}
+\|_{2}^2
+\end{equation*}
+\subsection*{Question 2}
+
+
+\subsection*{Question 3}
+
+\subsection*{Question 4}
+
+\subsection*{Question 5}
+
+\subsection*{Question 6}
 
 %----------------------------------------------- --------------------------------
 % REFERENCES
