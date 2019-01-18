@@ -75,6 +75,7 @@
 %-------------------------------------------------------------------------------
 
 \section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
 
 This assignment deals with modeling an \textit{Adaptive Optics} (AO) system in which three different data-driven turbulence modeling methods are used to achieve optimal control performances, viz.
 \begin{itemize}
@@ -273,7 +274,7 @@ From the random walk model, we can relate $\phi(k)$ and $\phi(k+1)$, and substit
 \epsilon(k+1) + Hu(k) = \epsilon(k) + Hu(k-1) + \eta(k)
 \end{equation*}
 
-If we consider $\hat\epsilon(k|k)$ to be the current optimal estimate, we know that the optimal one-step ahead prediction should not be stochastic in nature, and must be estimated based on the current optimal estimate. Based on the above equation, we can thus say,
+If we consider $\hat\epsilon(k|k)$ to be the current optimal estimate, we know that the optimal one-step ahead prediction should be such that $\eta(k)$ is minimized, and based on which the input vectors must be chosen. That is to say,
 
 \begin{equation}\label{eq:ques4}
 \hat\epsilon(k+1|k) = \hat\epsilon(k|k) + Hu(k-1) - Hu(k)
@@ -868,7 +869,7 @@ Thus, we can conclude that this method is not very scalable purely in terms of t
 M. Verhaegen, V. Verdult. "Filtering and System Identification: A Least-Squares Approach", Cambridge University Press, 2007.
 
 \section*{Appendix}
-
+\addcontentsline{toc}{section}{Appendix}
 Please find henceforth all MATLAB code associated with this assignment.
 
 \end{document}

@@ -1,6 +1,8 @@
 \babel@toc {english}{}
+\contentsline {section}{Introduction}{2}
 \contentsline {section}{Random Walk Model}{2}
 \contentsline {section}{VAR Model of Order 1}{8}
 \contentsline {section}{Subspace Identification}{13}
 \contentsline {section}{Critical Thinking}{18}
 \contentsline {section}{References}{23}
+\contentsline {section}{Appendix}{23}
