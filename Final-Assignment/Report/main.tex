@@ -707,14 +707,14 @@ In the \textbf{subspace identification model}, we make use of all the data we ha
 
 \subsubsection*{Question 3}
 
-The second unobservable mode is one in which the wavefront happens to lie in the nullspace of the G matrix (that is, if it does, the output slope vector is a zero vector which is not truly indicative of the turbulent wavefront). On performing an \textit{imagesc} run on the null vectors, we get the following image pattern:
+The second unobservable mode is one in which the wavefront happens to lie in the nullspace of the G matrix (that is, if it does, the output slope vector is a zero vector which is not truly indicative of the turbulent wavefront). On performing an \textit{imagesc} run on the null vectors, we get the image pattern as seen in Figure \ref{fig:gnullspacevectors}
 
-%\begin{figure}[!h]
-%	\centering
-%	\includegraphics[width=0.7\linewidth]{G_nullSpaceVectors}
-%	\caption{Imagesc representing the kernel of G}
-%	\label{fig:gnullspacevectors}
-%\end{figure}
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{G_nullSpaceVectors}
+	\caption{Imagesc representing the kernel of G}
+	\label{fig:gnullspacevectors}
+\end{figure}
 
 Since we make use of wavefront prediction in our models, if we see the above pattern as the predicted wavefront, we can be cautious and change the input ($\phi_{DM}$) so as to move away from the wavefront that would otherwise cause the slope vector to be falsely 0.
 
