@@ -46,7 +46,7 @@
 
 \begin{document}
 
-\title{ \normalsize \textsc{SC42025 Filtering and Identification}
+\title{ \normalsize \textsc{SC42025 Filtering and Identification\\Final Assignment}
 		\\ [2.0cm]
 		\HRule{0.5pt} \\
 		\LARGE \textbf{\uppercase{Turbulence Modeling for Adaptive Optics}}
@@ -827,7 +827,10 @@ The second unobservable mode is one in which the wavefront happens to lie in the
 Since we make use of wavefront prediction in our models, if we see the above pattern as the predicted wavefront, we can be cautious and change the input ($\phi_{DM}$) so as to move away from the wavefront that would otherwise cause the slope vector to be falsely 0.
 
 \subsubsection*{Question 4}
-
+The $\sigma_{e}$ term affects the variance of our estimate $\hat{\phi}$.\\
+When $\sigma_{e}$ is unknown, we could, in principal, keep $\sigma_{e}$ very small and obtain an estimate with a low variance. However, this estimate of ours would then not fit the actual data very well. We would get a large residual data fitting error.\\
+Alternatively, if $\sigma_{e}$ is too large, we overcompensate for the variance of the actual data and our estimate is again sub-par.\\
+So, $\sigma_{e}$ has to be tuned to closely approximate the variance of the actual data's noise. This can be done by Data-preprocessing to estimate the variance of the noise in the actual data.
 
 \subsubsection*{Question 5}
 The control law we derived in Section 1 is represented by equation \ref{eq:delta_uk}, in which we calculate the input to be applied at a time instant based on the slope measurement at that time instant and the previous input.
