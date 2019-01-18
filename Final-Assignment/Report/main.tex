@@ -627,19 +627,95 @@ C_T\\
 \begin{bmatrix}
 \hat{X}_{s,N-1}\\
 \end{bmatrix}
-\|_{2}^2
+\|_{F}^2
 \end{equation*}
+\\
+We solve this problem analytically, using the general least squares solution to a problem $\| y - Fx \|_{2}^2$ which is $\hat{x} = (F^T F)^{-1}F^T y$.
+\\
+This completes the state estimation and computing the state matrices.
 \subsection*{Question 2}
-
-
+Using the results from the previous question, we can compute the co-variances of our state estimate and identification data (including cross-covariance). This is done using the residuals from our optimal state estimate and our identified state matrices:\\
+\begin{equation*}
+\begin{bmatrix}
+\hat{W}_{s,1,N-1}\\
+\hat{V}_{s,1,N-1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\hat{X}_{s+1,N}\\
+\hat{Y}_{s,1,N-1}\\
+\end{bmatrix}
+- \begin{bmatrix}
+A_T\\
+C_T\\
+\end{bmatrix}
+\begin{bmatrix}
+\hat{X}_{s,N-1}\\
+\end{bmatrix}
+\end{equation*}
+Thus, our co-variances are computed as:\\
+\begin{equation*}
+\begin{bmatrix}
+\hat{Q} & \hat{S}\\
+\hat{S}^T & \hat{R}\\
+\end{bmatrix}
+=\underset{N\rightarrow \infty}{Lt}\frac{1}{N}
+\begin{bmatrix}
+\hat{W}_{s,1,N-1}\\
+\hat{V}_{s,1,N-1}
+\end{bmatrix}
+\begin{bmatrix}
+\hat{W}_{s,1,N-1}^T & \hat{V}_{s,1,N-1}^T\\
+\end{bmatrix}
+\end{equation*}
+Now that we have our co-variances, we can use the solution of the stationary Kalman equation to find optimal kalman gain $K_s$. This is done by solving a Ricatti equation of the form:\\
+\begin{equation*}
+\hat{P} = \hat{A}_T\hat{P}\hat{A}_T^T + \hat{Q} - (\hat{S} + \hat{A}_T\hat{P}\hat{C}_T^T)(\hat{C}_T\hat{P}\hat{C}_T^T + \hat{R})^{-1}(\hat{S} + \hat{A}_T\hat{P}\hat{C}_T^T)^T
+\end{equation*}
+And the Kalman Gain is:\\
+\begin{equation*}
+\hat{K}_T = (\hat{S} + \hat{A}_T\hat{P}\hat{C}_T^T)(\hat{C}_T\hat{P}\hat{C}_T^T + \hat{R})^{-1}
+\end{equation*}
+This completes the computation of the Covariances and the Kalman Gain.
 \subsection*{Question 3}
-
+Now that we know our State Space matrices (lets call them $A_s$, $C_s$) and our optimal Kalman Gain ($K_s$), we can use our turbulence model to obtain optimal prediction for our next state i.e. $\hat{x}(k+1|k)$ and consequently the optimal predition for the next open loop slope $\hat{s}(k+1|k)$.\\
+If the current output slope is $s(k)$, we can find the current innovation signal and hence write our prediction $\hat{x}(k+1|k)$ as:
+\begin{equation}
+\hat{x}(k+1|k) = A_s\hat{x}(k|k-1) + K_s(s(k) - C_s\hat{x}(k|k-1))
+\end{equation}
+Starting from an initial estimate $x(0)$, our Kalman implementation should eventually converse and provide a good estimate of $\hat{x}(k+1|k)$ and in turn, of $\hat{s}(k+1|k)$:
+\begin{equation*}
+\hat{s}(k+1|k) = C_s\hat{x}(k+1|k)
+\end{equation*}
+Since we need the optimal prediction of $\phi$, we can now use $\hat{s}(k+1|k)$ to find $\hat{\phi}(k+1|k)$ using the expression derived in Part 1.1 which is:
+\begin{equation*}
+\hat{\phi}(k+1|k) = V_{1}\Sigma^{-1}U_{1}^{T}\hat{s}(k+1|k)
+\end{equation*}
+where $V_{1}\Sigma^{-1}U_{1}^{T}$ represents the pseudo inverse of the matrix $G$ found using SVD.\\
+We can now use this $\hat{\phi}(k+1|k)$ to arrive at an expression for the residual $\hat{\epsilon}(k+1|k)$:
+\begin{equation*}
+\begin{aligned}
+\hat{\epsilon}(k+1|k) &= \hat{\phi}(k+1|k) - Hu(k)\\
+\hat{\epsilon}(k+1|k) &= V_{1}\Sigma^{-1}U_{1}^{T}\hat{s}(k+1|k) - Hu(k)\\
+\end{aligned}
+\end{equation*}
+So finally we get:
+\begin{equation}
+\hat{\epsilon}(k+1|k) = V_{1}\Sigma^{-1}U_{1}^{T}C_s\hat{x}(k+1|k) - Hu(k)
+\end{equation}
 \subsection*{Question 4}
-
+The control action that minimises $\hat{\epsilon}(k+1|k)$ as in equation (13) can be found by solving the least squares problem:\\
+\begin{equation*}
+\|\hat{\epsilon}(k+1|k)\|^2_2 = \|V_{1}\Sigma^{-1}U_{1}^{T}C_s\hat{x}(k+1|k) - Hu(k)\|^2_2
+\end{equation*}
+The analytical solution looks like:\\
+\begin{equation}
+\hat{u}(k) = (H^T H)^{-1}H^TV_{1}\Sigma^{-1}U_{1}^{T}C_s\hat{x}(k+1|k)
+\end{equation}
+Hence we have found a minimising control input $u$.
 \subsection*{Question 5}
 
 \subsection*{Question 6}
-
 
 \section*{4. Critical Thinking}
 
