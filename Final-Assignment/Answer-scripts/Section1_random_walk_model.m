@@ -71,9 +71,6 @@ variance_no_control = variance_no_control/num_Datasets;
 
 %% Question 7
 
-% We can clearly see that the variance in the case of the closed-loop
-% config is less than a third as the no-control case's, in terms of magnitude
-
 VAF_cumulative = 0;
 
 for cellIndex = 1:num_Datasets

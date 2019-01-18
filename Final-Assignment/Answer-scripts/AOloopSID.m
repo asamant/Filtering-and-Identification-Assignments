@@ -1,5 +1,6 @@
 function [var_eps, VAF] = AOloopSID(G,H,As,Cs,Ks,sigma_e,phi_sim)
-% Variance calculation of an AO system in the closed-loop configuration
+% Variance calculation of an AO system in the closed-loop configuration,
+% using the Subspace Identification model
 % IN
 % G     : measurement matrix 
 % H     : influence matrix mapping the wavefront on the mirror

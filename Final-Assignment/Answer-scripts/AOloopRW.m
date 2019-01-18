@@ -1,5 +1,6 @@
 function [var_eps] = AOloopRW(G,H, covariance_phi, sigma_e, phi_sim)
 % Variance calculation of an AO system in the closed-loop configuration
+% with the Random Walk model used for calculations
 % IN
 % G     : measurement matrix 
 % H     : influence matrix mapping the wavefront on the mirror
@@ -23,7 +24,7 @@ u = zeros(n_H,T);
 
 % This term is multiplied with the slope vector to obtain the eps_hat(k|k)
 % value
-eps_pred_multiplier_matrix = H\(covariance_phi*G'/(G*covariance_phi*G' + (sigma_e^2)*eye(n_G)));
+eps_pred_multiplier_matrix = (H'*H)\H'*(covariance_phi*G'/(G*covariance_phi*G' + (sigma_e^2)*eye(n_G)));
 
 % epsilon matrix
 eps_k = zeros(size(phi_sim,1),T);

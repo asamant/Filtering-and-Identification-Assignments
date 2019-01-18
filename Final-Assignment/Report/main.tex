@@ -26,6 +26,7 @@
 \usepackage{url}
 \usepackage{amsmath}
 \usepackage{upgreek}
+\usepackage{comment}
 
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
 \onehalfspacing
@@ -84,9 +85,9 @@ This assignment deals with modeling an \textit{Adaptive Optics} (AO) system in w
 
 Each model has some questions associated with it, and we solve them in chronological sequence taking one model at a time.
 
-\section*{1. Random Walk Model}
 
-\subsection*{Question 1}
+\section*{1. Random Walk Model}
+\addcontentsline{toc}{section}{Random Walk Model}
 
 We know from the assignment's equation (2) that:
 
@@ -300,15 +301,17 @@ This is clearly a linear least-squares problem, and we know from running the \te
 
 We computed the expression for $\hat\epsilon(k|k)$ in question 3, and substituting the expression in the above equation yields the value of $\hat\delta u(k)$ as:
 
-\begin{equation*}
+\begin{equation}\label{eq:delta_uk}
 \hat\delta u(k) = (H^{T}H)^{-1}H^{T}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
-\end{equation*}
+\end{equation}
 
+\begin{comment}
 Moreover, since H is invertible, we can further simplify the expression as:
 
 \begin{equation}\label{eq:delta_uk}
 \hat\delta u(k) = H^{-1}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
 \end{equation}
+\end{comment}
 
 \subsection*{Question 6}
 
@@ -340,7 +343,9 @@ We compare the variance values returned by the random-walk model-based control d
 
 The VAF is calculated based on another function, \texttt{VAF\_RW} in which the $\phi(k+1|k)$ values are compared against $\phi_{sim}(k+1)$ values (after taking into consideration the mean value subtraction as performed in Question 6). The value returned is around 70\%.
 
-\section*{2. VAR Model}
+\newpage
+\section*{2. VAR Model of Order 1}
+\addcontentsline{toc}{section}{VAR Model of Order 1}
 
 We are provided with a VAR model represented by:
 
@@ -552,7 +557,9 @@ We compare the average variance value obtained in this case as against in the ra
 
 We compute the VAF for the turbulence wavefront one step ahead predicted values as in the previous case by comparing the predicted $\hat\phi(k+1|k)$ vectors against the $\phi_{sim}(k+1)$ vectors, and obtain a value of around 83 \%.
 
+\newpage
 \section*{3. Subspace Identification}
+\addcontentsline{toc}{section}{Subspace Identification}
 
 We are provided with a turbulence state space model description with a general state vector $x$ and are tasked with finding the Matrices $A_s$, $C_s$ and the Kalman gain $K_s$ of the system in innovation form.
 
@@ -718,6 +725,7 @@ Hence we have found a minimising control input $u$.
 We ran the subspace Identification and Validation for the given datasets $\phi_{ident}$ and $\phi_{sim}$ respectively.\\
 The System Identification cycle was completed multiple times for different sets of $\phi_{ident}$ and $\phi_{sim}$ to avoid overfitting any particular dataset and to arrive at reliable average variance and VAF values.\\
 Matlab Implementation attached in the Appendix.
+
 \subsection*{Question 6}
 \textbf{Results:}
 \begin{itemize}
@@ -737,7 +745,10 @@ Matlab Implementation attached in the Appendix.
 	\item The parameters $N_{val}$ and $N_{id}$ were not used since we performed our validation on the simulation dataset $\phi_{sim}$ in the 'AOlooSID' function.
 	
 \end{itemize}
+
+\newpage
 \section*{4. Critical Thinking}
+\addcontentsline{toc}{section}{Critical Thinking}
 
 \subsection*{Question 1}
 
@@ -817,6 +828,32 @@ Since we make use of wavefront prediction in our models, if we see the above pat
 
 \subsubsection*{Question 4}
 
+
+\subsubsection*{Question 5}
+The control law we derived in Section 1 is represented by equation \ref{eq:delta_uk}, in which we calculate the input to be applied at a time instant based on the slope measurement at that time instant and the previous input.
+
+It is a recursive relation, and we assume that at the first time instant, we do not apply any control input. Based on this, we calculate the control input ($\phi_{DM}(k)$) for the rest of the time instants based on the control law represented by equation (6) in the assignment (on which equation \ref{eq:delta_uk}'s derivation is based).
+
+We see that in
+
+\begin{equation*}
+\hat\delta u(k) = (H^{T}H)^{-1}H^{T}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k)
+\end{equation*}
+
+there is a mix of online and offline computations, as listed below:
+
+\begin{itemize}
+	\item say, V = $ (H^{T}H)^{-1}H^{T}C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}$. We know that V can be computed offline since its value does not depend on any sample instant k (the H, $C_{\phi}(0)$ and G matrices do depend on the sensor array size, but since the above computation needs to be done only once, there's no exponential increase in the number of computations with increasing loop size)
+	\item Multiplying V with s(k) cannot be done offline since it depends on the slope vector s(k) at time instant k, and the number of computations grows quadratically with increasing sensor array size (since there is a squaring term involved).
+	\item Likewise, the number of computations for calculating u(k) from u(k-1) grows quadratically with the increasing actuator array size. Since it is a recursive relation, it cannot be done offline.
+\end{itemize}
+
+Per iteration, there are $2p^{2}x m^2$ elementary multiplication operations and $(2p^{2} - 1)x m^2$ elementary addition operations from the V*s(k) matrix multiplication, and a further $m^2$ elementary addition operations from adding the product to u(k-1).
+
+Hence, we have a total of $2p^{2}x m^2$ multiplication and $2p^{2}x m^2$ addition operations as online computations.
+
+Thus, we can conclude that this method is not very scalable purely in terms of the sensor and actuator array sizes involved, since with large array sizes, the number of computations per iteration grows quadratically ($\mathcal{O}(n^2)$).
+
 %----------------------------------------------- --------------------------------
 % REFERENCES
 %-------------------------------------------------------------------------------
@@ -824,118 +861,12 @@ Since we make use of wavefront prediction in our models, if we see the above pat
 \section*{References}
 \addcontentsline{toc}{section}{References}
 
-Anand, U., 2010. The Elusive Free Radicals, \textit{The Clinical Chemist,} [e-journal] Available at:<\url{http://www.clinchem.org/content/56/10/1649.full.pdf}> [Accessed 2 November 2013]
-\newline
-\newline
 
-Biology Forums, 2012. \textit{Normal glomerulus. Acute glomerulonephritis.} [online] Available at: <\url{http://biology-forums.com/index.php?action=gallery;sa=view;id=9284}> [Accessed 23 October 2013].
-\newline
-\newline
+M. Verhaegen, V. Verdult. "Filtering and System Identification: A Least-Squares Approach", Cambridge University Press, 2007.
 
-Budisavljevic, M., Hodge, L., Barber, K., Fulmer, J., Durazo-Arvizu, R., Self, S., Kuhlmann, M., Raymond, J. and Greene, E., 2003. Oxidative stress in the pathogenesis of experimental mesangial proliferative glomerulonephritis, \textit{American Journal of Physiology - Renal Physiology,} 285(6), pp. 1138-1148.
-\newline
-\newline
+\section*{Appendix}
 
-Chien, C., Lee, P., Chen, C., Ma, M., Lai, M. and Hsu, S., 2001. De Novo Demonstration and Co-localization of Free-Radical Production and Apoptosis Formation in Rat Kidney Subjected to Ischemia/Reperfusion, \textit{Journal of the American Society of Nephrology,} 12(5), pp. 973-982.
-\newline
-\newline
-
-Couser, W., 1993. Pathogenesis of glomerulonephritis, \textit{Kidney International Supplements,} 42, pp. 19-26.
-\newline
-\newline
-
-De Gasparo, M., 2002. Angiotensin II and nitric oxide interaction, \textit{Heart Failure Reviews,} [e-journal] Available at:<\url{http://www.ncbi.nlm.nih.gov/pubmed/12379820}> [Accessed 26 October 2013]
-\newline
-\newline
-
-Edinburgh Renal Education Pages, 2012. \textit{Glomerulonephritis} [online] Available at: <\url{http://www.edrep.org/pages/textbook/glomerulonephritis.php}> [Accessed 25 October 2013].
-\newline
-\newline
-
-Forbes, J., Coughlan, M. and Cooper, M., 2008. Oxidative Stress as a Major Culprit in Kidney Disease in Diabetes, \textit{Diabetes,} 57(6), pp. 1446-1454.
-\newline
-\newline
-
-Geeky Medics, 2010. \textit{Glomerulonephritis} [online] Available at: <\url{http://geekymedics.com/2010/10/27/glomerulonephritis/}> [Accessed 25 October 2013].
-\newline
-\newline
-
-Gryglewski, R., Palmer, R., Moncada, S., 1986. Superoxide anion is involved in the break­down of endothelium derived relaxing factor, \textit{Nature,} 320, pp. 454-456.
-\newline
-\newline
-
-Halliwell, B., 2001. Free Radicals and other reactive species in Disease, \textit{Encyclopedia of Life Sciences,} [e-journal] Available at:<\url{http://web.sls.hw.ac.uk/teaching/level4/bcm1_2/reading/oxidative_stress/files/Oxidative_stress.pdf}> [Accessed 19 October 2013]
-\newline
-\newline
-
-Huang, H., Patel, P. and Salahudeen, A., 2001. Lazaroid compounds prevent early but not late stages of oxidant-induced cell injury: potential explanation for the lack of efficacy of lazaroids in clinical trials, \textit{Pharmacological Research,} 41(1), pp. 55-61.
-\newline
-\newline
-
-Klinger, J., Abman, S. and Gladwin, M., 2013. Nitric Oxide Deficiency and Endothelial Dysfunction in Pulmonary Arterial Hypertension, \textit{American Journal of Respiratory and Critical Care Medicine,} 188(6), pp. 639-646.
-\newline
-\newline
-
-Lindemann, I., Boettcher, J., Oertel, K., Pasternack, R., Heine, A. and Klebe, G. 2012. Inhibitors of Transglutaminase 2: A therapeutic option in celiac disease, \textit{To be Published,} [e-journal + PDB structure] Available at:<\url{http://www.ebi.ac.uk/pdbe-srv/view/entry/3s3s/summary}> [Accessed 24 October 2013]
-\newline
-\newline
-
-Mayo Clinic, 2011. \textit{Glomerulonephritis} [online] Available at: <\url{http://www.mayoclinic.com/health/glomerulonephritis/DS00503/}> [Accessed 20 October 2013].
-\newline
-\newline
-
-McCord, J., Roy, R. and Schaffer, S., 1985. Free radicals and myocardial ischemia. The role of xanthine oxidase, \textit{Advances in myocardiology,} [e-journal] Available at:<\url{http://www.ncbi.nlm.nih.gov/pubmed/2982206}> [Accessed 24 October 2013]
-\newline
-\newline
-
-National Health Service, 2012. \textit{Causes of glomerulonephritis} [online] Available at: <\url{http://www.nhs.uk/Conditions/Glomerulonephritis/Pages/Causes.aspx}> [Accessed 20 October 2013].
-\newline
-\newline
-
-Niaudet, P., 2013. \textit{Overview of the pathogenesis and causes of glomerulonephritis in children.} [online] Available at: <\url{http://www.uptodate.com/contents/overview-of- \ the-pathogenesis-and-causes-of-glomerulonephritis-in-children}> [Accessed 21 October 2013].
-\newline
-\newline
-
-Ronco, P., 2013. \textit{Mechanisms of glomerular crescent formation.} [online] Available at: <\url{http://www.uptodate.com/contents/mechanisms-of-glomerular-crescent-formation}> [Accessed 21 October 2013].
-\newline
-\newline
-
-Rutchik, J., 2013. \textit{Toxic Neuropathy Clinical Presentation.} [online] Available at: <\url{http://emedicine.medscape.com/article/1175276-clinical#a0216}> [Accessed 26 October 2013].
-\newline
-\newline
-
-R\&D Systems, 2013. \textit{Technical Information. Ischemia/Reperfusion Injury.} [online] Available at: <\url{http://www.rndsystems.com/cb_detail_objectname_SP96_Ischemia.aspx}> [Accessed 28 October 2013].
-\newline
-\newline
-
-Salahudeen, A., 1999. Free Radicals in Kidney Disease and Transplantation, \textit{Saudi Journal of Kidney Diseases and Transplantation,} 10(2), pp. 137-143.
-\newline
-\newline
-
-Sarma, A., Mallick, A. and Ghosh, A., 2010. Free Radicals and Their Role in Different Clinical Conditions: An Overview, \textit{International Journal of Pharma Sciences and Research,} 1(3), pp. 182-192.
-\newline
-\newline
-
-Shah, S., Baliga, R., Rajapurkar, M. and Fonseca, V., 2007. Oxidants in Chronic Kidney Disease, \textit{Journal of the American Society of Nephrology,} 18(1), pp. 16-28.
-\newline
-\newline
-
-The University of Utah, Unknown. \textit{Glomerulonephritis} [online] Available at: <\url{http://library.med.utah.edu/WebPath/RENAHTML/RENALIDX.html#8}> [Accessed 25 October 2013].
-\newline
-\newline
-
-Wang, C. and Salahudeen, A., 1994. Cyclosporine nephrotoxicity: attenuation by an antioxidant -inhibitor of lipid peroxidation in-vitro and in-vivo, \textit{Transplantation,} 58, pp. 940-946.
-\newline
-\newline
-
-Wang, C. and Salahudeen, A., 1995. Lipid peroxidation accompanies cyclosporine nephrotoxicity: effects of vitamin E, \textit{Kidney International,} 47, pp. 927-934.
-\newline
-\newline
-
-Weiss, S., 1989. Tissue Destruction by Neutrophils, \textit{New England Journal of Medicine,} 320, pp. 365-376.
-\newline
-\newline
-
+Please find henceforth all MATLAB code associated with this assignment.
 
 \end{document}
 

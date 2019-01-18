@@ -5,6 +5,11 @@ close all;
 load systemMatrices.mat; 
 load turbulenceData.mat; % load the data provided
 
+% Considering the first dataset for this section
+phi_sim = phiSim{1,1};
+
+phi_size = size(phi_sim,1);
+
 %% Question 4.1
 
 % Rank of G*H
@@ -22,10 +27,6 @@ n_H = size(H,1);
 % dimension lifted sensor slopes
 n_G = size(G,1);
 
-phi_sim = phiSim{1,1};
-
-phi_size = size(phi_sim,1);
-
 covariance_phi = zeros(phi_size, phi_size);
 
 % Number of sample points for phi_sim
@@ -37,9 +38,6 @@ for k = 1:T
 end
 
 covariance_phi = covariance_phi/T;
-
-% This term is multiplied with the slope vector to obtain the eps_hat(k|k)
-% value
 
 s_k = zeros(n_G,length(phi_sim));
 eps_k = zeros(n_H,length(phi_sim));
@@ -104,3 +102,4 @@ imagesc(phi_matrix_1);
 
 figure(2);
 imagesc(phi_matrix_2);
+

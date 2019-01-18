@@ -1,5 +1,6 @@
 function [var_eps] = AOloopAR(G,H, covariance_phi, sigma_e, A, Cw, K, phi_sim)
 % Variance calculation of an AO system in the closed-loop configuration
+% with a Kalman filter involved
 % IN
 % G     : measurement matrix 
 % H     : influence matrix mapping the wavefront on the mirror
@@ -52,7 +53,8 @@ s_k = G*phi_sim(:,1) + sigma_e*randn(n_G,1);
 % Initial input
 u(:,1) = H\(K*s_k);
 
-% e(1|0) = 0;
+% eps(1|0) = 0;
+%eps_kplus1k = eps(k+1|k)
 eps_kplus1k(:,1) = K*G*phi_sim(:,1) + K*sigma_e*randn(n_G,1) - H*u(:,1);  
 
 % Initial eps(k)
