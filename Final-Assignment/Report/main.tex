@@ -550,7 +550,7 @@ The variance value of $\epsilon$ returned by \texttt{AOloopAR()} is around 3.5.
 
 We compare the average variance value obtained in this case as against in the random walk model's. The value is further reduced using this model, and we see that this model outperforms the random walk model in terms of minimizing the variance of the estimates.
 
-We compute the VAF for the turbulence wavefront one step ahead predicted values as in the previous case, and obtain a value of around 83 \%.
+We compute the VAF for the turbulence wavefront one step ahead predicted values as in the previous case by comparing the predicted $\hat\phi(k+1|k)$ vectors against the $\phi_{sim}(k+1)$ vectors, and obtain a value of around 83 \%.
 
 \section*{3. Subspace Identification}
 
@@ -639,6 +639,86 @@ C_T\\
 \subsection*{Question 5}
 
 \subsection*{Question 6}
+
+
+\section*{4. Critical Thinking}
+
+\subsection*{Question 1}
+
+In this question, we make use of a slightly different version of the random walk model presented in Section 1, with the control law requiring the minimization of the residual slopes s(k+1) instead of $\epsilon(k+1)$.
+
+We know from equation (5) of the assignment that:
+
+\begin{equation*}
+\hat{s}(k+1|k) = G\hat\epsilon(k+1|k)
+\end{equation*}
+
+Writing $\hat\epsilon(k+1|k) = \hat\phi(k+1|k) - Hu(k)$, we obtain the relation:
+
+\begin{equation*}
+\hat{s}(k+1|k) = G\hat\phi(k+1|k) - GHu(k)
+\end{equation*}
+
+Since we are making use of the random walk model as described by equation (9), we know the relation: $\hat\phi(k+1|k) = \hat\phi(k|k)$
+
+Moreover, we also know from \ref{eq:epsk_k} the estimate for $\hat\epsilon(k|k)$, which can be written as $\hat\phi(k|k) - Hu(k-1)$. Thus, we get the estimate for $\hat\phi(k|k)$ in terms of s(k), u(k), and u(k-1).
+
+Combining the above pieces of information together, we get the following expression for $\hat{s}(k+1|k)$:
+
+\begin{equation*}
+\hat s(k+1|k) = G\left( C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k) + Hu(k-1)\right) - GHu(k)
+\end{equation*}
+
+We clearly see that $\underset{u(k)}{min}\|\hat s(k+1|k)\|_{2}^{2}$ is a linear least-squares problem if we know the vector u(k-1).
+
+We see that G*H produces a matrix that is not full-rank, and hence we follow the approach from Section 1's Question 1, in which there is no assumption made on the rank.
+
+We get the optimum value of u(k), 
+
+\begin{equation*}
+\hat{u}(k) = V_{1}\Sigma^{-1}U_{1}^{T}G\left( C_{\phi}(0)G^{T}(GC_{\phi}(0)G^{T} + \sigma_{e}^{2}I)^{-1}s(k) + Hu(k-1)\right)
+\end{equation*}
+
+Where $U_{1}, V_{1},$ and $\Sigma$ are the matrices obtained on performing an SVD of the G*H matrix considering the linearly independent vectors and their singular values.
+
+We know that u(0) = 0, since we do not apply any actuation initially. Based on this information, we calculate the value for u(1) by solving the above minimization problem. Subsequently, we solve the minimization problems for all u(k) values.
+
+Thus, we calculate the variance of $\epsilon(k)$ based on the values calculated from the above u(k) values and the $\phi_{sim}(k+1)$ values provided to us.
+
+
+\subsubsection*{Question 2}
+
+The following values are obtained for the different methods:
+
+\begin{itemize}
+	\item Random walk model: var($\epsilon$) $\sim$ 6.5, and VAF $\sim$ 70 \%
+	\item VAR1 model: var($\epsilon$) $\sim$ 3.5, and VAF $\sim$ 83 \%
+	\item Subspace Identification model: var($\epsilon$) $\sim$ 2.1, and VAF $\sim$ 90 \%
+	\item Slope-minimizing model: var($\epsilon \sim$ 6.5, and VAF $\sim$ 70 \%
+\end{itemize}
+
+The above results follow a trend which is expected, since the models used greatly affect the results obtained.
+
+In the \textbf{random walk models}, since we do not make enough use of the data provided to us and follow an approach in which we assume the wavefront to be changing based on a random turbulence value, we cannot really predict accurately the one step ahead wavefronts and thus end up getting large variance values and low VAF values. Moreover, for both the slope-minimizing and the Question 1 RW model, we get approximately the same values since the underlying model is the same in both cases and the minimization of either the predicted s(k+1) values or $\epsilon(k+1)$ should yield the same results (we do not make use of any further information in the slop-minimizing model and thus cannot expect better results).
+
+In the \textbf{VAR1 model}, we make use of a stationary Kalman filter (constructed using the data available to us) and thus can expect better values of variance and VAF than the random walk models (the observer provides a correction term to the model through the Kalman filter, based on which the predicted values are closer to the actual values). We see that the values we obtain are indeed in line with our expectations.
+
+In the \textbf{subspace identification model}, we make use of all the data we have about the system's output and input data, and construct models of different orders that  best represent the system based on the data. After choosing an order based on training data, validation data is used to test the constructed system. Hence, we clearly see that a lot more data is used in this approach to construct our system model, and given that the validation data is from the same family of datasets, we can expect our constructed system model to be quite accurate when tested with the validation data. Moreover, there is no prior assumption made on the system other than that it is represented by a stochastic state-space model. We clearly see from the results that the subspace identification model performs the best in terms of the performance parameters, as expected.
+
+\subsubsection*{Question 3}
+
+The second unobservable mode is one in which the wavefront happens to lie in the nullspace of the G matrix (that is, if it does, the output slope vector is a zero vector which is not truly indicative of the turbulent wavefront). On performing an \textit{imagesc} run on the null vectors, we get the following image pattern:
+
+%\begin{figure}[!h]
+%	\centering
+%	\includegraphics[width=0.7\linewidth]{G_nullSpaceVectors}
+%	\caption{Imagesc representing the kernel of G}
+%	\label{fig:gnullspacevectors}
+%\end{figure}
+
+Since we make use of wavefront prediction in our models, if we see the above pattern as the predicted wavefront, we can be cautious and change the input ($\phi_{DM}$) so as to move away from the wavefront that would otherwise cause the slope vector to be falsely 0.
+
+\subsubsection*{Question 4}
 
 %----------------------------------------------- --------------------------------
 % REFERENCES
